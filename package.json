@@ -1,0 +1,25 @@
+{
+  "name": "pasar-keripik",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Pasar Keripik product admin (Phase 1): API server + admin web",
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev": "node --watch-path=server server/index.js",
+    "start": "node server/index.js",
+    "test": "node --test --test-concurrency=4 \"server/test/**/*.test.js\"",
+    "seed:demo": "node server/scripts/seed-demo.js",
+    "perf": "node server/scripts/perf.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^12.4.1",
+    "compression": "^1.8.1",
+    "dotenv": "^17.2.3",
+    "express": "^4.21.2",
+    "multer": "^2.0.2",
+    "sharp": "^0.35.5"
+  }
+}
