@@ -46,6 +46,9 @@ export function seedBase(db, opts = {}) {
       max_images_per_product: '9',
       stock_reasons: JSON.stringify(['restock', 'adjustment', 'stock_opname', 'damaged', 'expired', 'return']),
       sku_prefix: 'PK',
+      tagline: 'Renyahnya, selalu bikin happy',
+      low_stock_threshold: '10',
+      logo_file: null, // file name in UPLOAD_DIR; null = default icon
     };
     const has = db.prepare('SELECT 1 FROM settings WHERE key = ?');
     const insS = db.prepare('INSERT INTO settings (key, value, created_by, updated_by) VALUES (?, ?, ?, ?)');

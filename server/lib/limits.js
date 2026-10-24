@@ -27,4 +27,5 @@ export const LIMITS = {
   note: 200, // StockDialog note maxLength
   pageSizeDefault: 20,
   pageSizeMax: 100,
+  tagline: 120, // Settings tagline
 };

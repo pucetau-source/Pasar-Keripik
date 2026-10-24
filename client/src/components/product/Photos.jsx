@@ -60,11 +60,11 @@ export default function Photos({ productId, images, onChange, error }) {
 
   return (
     <div>
-      <ul className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
+      <ul className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-3 gap-2.5">
         {images.map((im, i) => (
           <li key={im.id || im.url} draggable onDragStart={() => setDrag(i)} onDragEnd={() => { setDrag(null); setOver(null); }}
             onDragOver={(e) => { e.preventDefault(); setOver(i); }} onDrop={(e) => { e.preventDefault(); if (drag != null) reorder(drag, i); setDrag(null); setOver(null); }}
-            className={'relative group rounded-xl overflow-hidden bg-white border-2 aspect-square cursor-grab active:cursor-grabbing ' + (over === i && drag != null ? 'border-chili-600' : 'border-[var(--line)]') + (drag === i ? ' opacity-40' : '')}>
+            className={'relative group rounded-xl overflow-hidden bg-surface border-2 aspect-square cursor-grab active:cursor-grabbing ' + (over === i && drag != null ? 'border-chili-600' : 'border-[var(--line)]') + (drag === i ? ' opacity-40' : '')}>
             <img src={im.thumbUrl || im.url} alt={`${t('photos.photo')} ${i + 1}`} className="w-full h-full object-cover" draggable="false" width="160" height="160" />
             {i === 0 && <span className="absolute top-1.5 left-1.5 chip bg-chili-600 text-white shadow"><Icon name="star" size={12} />{t('photos.cover')}</span>}
             <div className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-0.5 p-1 bg-gradient-to-t from-black/70 to-transparent text-white">
@@ -83,7 +83,7 @@ export default function Photos({ productId, images, onChange, error }) {
           <li>
             <button type="button" onClick={() => input.current?.click()} disabled={busy}
               onDragOver={(e) => e.preventDefault()} onDrop={(e) => { e.preventDefault(); if (e.dataTransfer.files?.length) add(e.dataTransfer.files); }}
-              className="w-full aspect-square rounded-xl border-2 border-dashed border-ink-mute/60 bg-white/50 hover:bg-white/80 hover:border-chili-600 flex flex-col items-center justify-center gap-1 text-ink-soft font-semibold text-sm text-center px-1">
+              className="w-full aspect-square rounded-xl border-2 border-dashed border-ink-mute/60 bg-sunken hover:bg-sunken hover:border-chili-600 flex flex-col items-center justify-center gap-1 text-ink-soft font-semibold text-sm text-center px-1">
               <Icon name="upload" size={26} />
               {busy ? t('common.wait') : t('photos.add')}
               <span className="text-xs font-normal text-ink-mute">{images.length}/{MAX}</span>

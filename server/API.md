@@ -19,12 +19,22 @@ Language: `Accept-Language: id|en` (or `?lang=en`); default comes from `settings
 - `GET /settings` ->
   ```
   { shop_name, default_language, max_images_per_product, sku_prefix,
+    tagline: string|null,                                      // seed 'Renyahnya, selalu bikin happy' (max 120)
+    low_stock_threshold: int,                                  // seed 10, >= 0 (returned as a number)
+    logo_file: string|null,                                    // file name in UPLOAD_DIR, null = default icon
+    logo_url: '/uploads/logo-<uuid>.webp' | null,              // derived from logo_file
     stock_reasons: string[],                                   // stored values, e.g. ["restock","damaged",...]
     stock_reason_options: [{ value, label }],                  // same list, label in the request language
     stock_reason_labels: { [value]: { id, en } } }             // every stored reason + system reasons 'initial', 'sale'
   ```
   Built-in labels: restock = Tambah stok / Restock, adjustment = Penyesuaian / Adjustment, stock_opname = Stok opname / Stock count, damaged = Rusak / Damaged, expired = Kedaluwarsa / Expired, return = Retur / Return, initial = Stok awal / Initial stock, sale = Penjualan / Sale. Custom reasons are shown as typed.
-- `PUT /settings` body: any subset of the existing keys -> same shape. `stock_reason_options` / `stock_reason_labels` are read-only and ignored. *(extra endpoint)*
+- `PUT /settings` body: any subset of the existing keys -> same shape. `logo_url` / `stock_reason_options` / `stock_reason_labels` are read-only and ignored. `low_stock_threshold` must be an integer >= 0. `logo_file` accepts only `null`/`''` (removes the logo, same as `DELETE /settings/logo`) or its current value (no-op); anything else -> 422 `fields.logo_file`. Every changed key is audited (`audit_log.table_name = 'settings'`). *(extra endpoint)*
+- `POST /settings/logo` multipart, single field `logo`. JPG/PNG/WEBP only (SVG is always rejected, also when disguised with another MIME type: the content is sniffed), max **2 MB**. Re-encoded to WEBP, max 256 px (no enlargement, transparency kept), stored in `UPLOAD_DIR`; the previous logo file is deleted. -> 200 settings (same shape as `GET /settings`). Errors: 415 IMAGE_TYPE, 413 IMAGE_TOO_LARGE (`max 2 MB`), 422 IMAGE_UNREADABLE, 422 VALIDATION `fields.logo` (no file). Audited.
+- `DELETE /settings/logo` -> 200 settings with `logo_file: null, logo_url: null` (file deleted; idempotent). Audited.
+
+## Stats
+`GET /stats` -> `{ total_products, active_products, inactive_products, low_stock_products }` (integers, non-deleted products).
+Low stock = the product has **at least one active variant** with `stock <= settings.low_stock_threshold` (inactive variants are ignored; inactive products are counted). One scan of a covering index (`products.stock_min`, kept by triggers); p95 ~2 ms over HTTP at 10k products.
 
 ## Limits (same as the admin UI `maxLength`s)
 Product name 120, description 3000, category name 80, unit name 50, unit symbol 8, tag 40, variation name 40, option 40, SKU 60, barcode 40, stock reason 80, stock note 200 (characters). Prices (variant, wholesale, discount) are whole Rupiah **>= 1**; 0 is rejected with `"Harga minimal Rp1."` / `"Price must be at least Rp1."`.
@@ -50,9 +60,9 @@ Product name 120, description 3000, category name 80, unit name 50, unit symbol 
 ```
 items: [{ id, name, status, category_id, category_name, price_min, price_max,
           effective_price_min, effective_price_max, has_discount, stock_total, variant_count,
-          preorder, cover_thumb_url|null, created_at, updated_at }]
+          preorder, low_stock: bool, cover_thumb_url|null, created_at, updated_at }]
 ```
-`price_*` are over active variants; `effective_*` include a discount running now (WIB).
+`price_*` are over active variants; `effective_*` include a discount running now (WIB). `low_stock` uses the same rule as `GET /stats` (any active variant with stock <= `low_stock_threshold`).
 
 ### Detail
 `GET /products/:id`
@@ -93,6 +103,14 @@ Rules:
 - PUT is partial for scalar fields and `tags`. `axes` and `variants` are a full replace and must be sent **together**. Variants are matched by `id`, else by identical option combination; matched variants keep their id and stock. Removed variants/axes/options/tiers are soft-deleted. `stock` is ignored for existing variants (use the stock endpoint).
 - A variant price cannot be lowered to/below one of its active or scheduled discounts.
 - `DELETE /products/:id` -> 204 (soft delete; its variants/tags/discounts are soft-deleted too).
+
+### Duplicate
+`POST /products/:id/duplicate` (no body) -> 201 detail of the **new** product (same shape as `GET /products/:id`); 404 if the source is missing/deleted.
+- `name` = source name + `' (salinan)'` (id) or `' (copy)'` (en, from `Accept-Language` / `?lang=`); the source part is cut so the result is at most 120 characters.
+- `status: 'inactive'`; same category, description, condition, pre-order, min purchase, dimensions, tags, axes/options (same order), variants (price, weight, active, wholesale tiers).
+- Variants get fresh auto SKUs (`<sku_prefix><newId>-<n>`), `barcode: null`, `stock: 0` (no stock movements). Discounts are **not** copied.
+- Images: files are copied (new names), same order/cover; photos linked to a variant are linked to the matching new variant.
+- Audit: one save on the new product, `action: 'created'`.
 
 ### Audit
 `GET /products/:id/audit?page=&page_size=` (default 50, newest first; also works for deleted products).

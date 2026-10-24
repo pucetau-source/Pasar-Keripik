@@ -97,6 +97,7 @@ const M = {
     image_unreadable: 'File "{file}" tidak bisa dibaca sebagai gambar.',
     image_order_mismatch: 'Urutan foto harus berisi semua foto produk ini, masing-masing sekali.',
     variant_not_found_for_image: 'Varian untuk foto ini tidak ditemukan di produk ini.',
+    logo_use_upload: 'Logo diganti lewat unggah logo (atau dikosongkan untuk ikon bawaan).',
   },
   en: {
     validation_failed: 'Some fields are not valid. Please check the highlighted fields.',
@@ -181,6 +182,7 @@ const M = {
     image_unreadable: 'File "{file}" could not be read as an image.',
     image_order_mismatch: 'The photo order must list every photo of this product exactly once.',
     variant_not_found_for_image: 'The variant for this photo was not found in this product.',
+    logo_use_upload: 'Change the logo by uploading a file (or clear it to use the default icon).',
   },
 };
 

@@ -79,4 +79,14 @@ export const id = {
   'unit.emptyText': 'Tambahkan satuan berat, misalnya gram atau kilogram, agar bisa dipakai di varian.', 'unit.deleteTitle': 'Hapus satuan?', 'unit.deleteMsg': 'Satuan "{name}" akan dihapus. Satuan yang masih dipakai tidak bisa dihapus.',
 
   'audit.title': 'Riwayat perubahan', 'audit.more': 'Muat lebih banyak', 'audit.back': 'Kembali ke produk', 'audit.empty': 'Belum ada riwayat', 'audit.emptyText': 'Setiap perubahan pada produk akan tercatat di sini.',
+  'nav.settings': 'Pengaturan', 'nav.theme': 'Tema', 'nav.themeDark': 'Ganti ke mode gelap', 'nav.themeLight': 'Ganti ke mode terang', 'nav.user': 'Pengguna', 'nav.openSettings': 'Buka pengaturan',
+  'list.subtitle': 'Kelola katalog dan stok produk', 'list.duplicate': 'Gandakan', 'list.duplicated': 'Produk digandakan. Periksa salinannya sebelum dipakai.', 'list.low': 'Menipis',
+  'list.imageCol': 'Gambar', 'list.lowOnly': 'Hanya stok menipis', 'list.lowFilter': 'Stok menipis (min. {n})',
+  'stat.total': 'Total produk', 'stat.low': 'Stok menipis', 'stat.active': 'Produk aktif',
+  'set.title': 'Pengaturan', 'set.subtitle': 'Identitas toko dan preferensi tampilan', 'set.shop': 'Identitas toko', 'set.shopHint': 'Tampil di sisi kiri aplikasi.',
+  'set.name': 'Nama toko', 'set.tagline': 'Slogan', 'set.logo': 'Logo', 'set.logoHint': 'PNG, JPG, atau WebP. Bentuk persegi paling pas.', 'set.logoUpload': 'Unggah logo', 'set.logoChange': 'Ganti logo', 'set.logoRemove': 'Hapus logo',
+  'set.logoSaved': 'Logo diperbarui.', 'set.logoRemoved': 'Logo dihapus, kembali ke ikon daun.', 'set.logoDefault': 'Ikon daun bawaan',
+  'set.prefs': 'Preferensi', 'set.prefsHint': 'Berlaku untuk seluruh aplikasi.', 'set.threshold': 'Batas stok menipis', 'set.thresholdHint': 'Produk dengan stok sampai angka ini dihitung menipis.',
+  'set.lang': 'Bahasa bawaan', 'set.langHint': 'Dipakai bila perangkat ini belum memilih bahasa sendiri.', 'set.theme': 'Tampilan', 'set.themeHint': 'Ikuti sistem, atau pilih sendiri. Disimpan di perangkat ini.',
+  'set.themeSystem': 'Sistem', 'set.themeLight': 'Terang', 'set.themeDark': 'Gelap', 'set.saved': 'Pengaturan disimpan.', 'set.errNum': 'Isi angka 0 atau lebih.',
 };

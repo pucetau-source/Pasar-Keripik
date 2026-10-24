@@ -6,6 +6,8 @@ const DICTS = { id, en };
 const KEY = 'pk_lang';
 export const LANGS = ['id', 'en'];
 
+export const hasStoredLang = () => { try { return LANGS.includes(localStorage.getItem(KEY)); } catch { return true; } };
+
 export function getLang() {
   try {
     const v = localStorage.getItem(KEY);
@@ -18,9 +20,9 @@ const Ctx = createContext(null);
 
 export function I18nProvider({ children }) {
   const [lang, setLangState] = useState(getLang);
-  const setLang = useCallback((l) => {
+  const setLang = useCallback((l, persist = true) => {
     setLangState(l);
-    try { localStorage.setItem(KEY, l); } catch { /* ignore */ }
+    if (persist) { try { localStorage.setItem(KEY, l); } catch { /* ignore */ } }
     document.documentElement.lang = l;
   }, []);
   const t = useCallback((k, vars) => {

@@ -10,7 +10,7 @@ function TreeNode({ n, depth, value, onPick, open, toggle, forceOpen }) {
   const isOpen = forceOpen || open.has(n.id);
   return (
     <li role="treeitem" aria-expanded={kids.length ? isOpen : undefined} aria-selected={value === n.id}>
-      <div className={'flex items-center rounded-lg ' + (value === n.id ? 'bg-chili-100' : 'hover:bg-white/80')} style={{ paddingLeft: depth * 18 }}>
+      <div className={'flex items-center rounded-lg ' + (value === n.id ? 'bg-chili-100' : 'hover:bg-sunken')} style={{ paddingLeft: depth * 18 }}>
         {kids.length ? (
           <button type="button" className="p-2 text-ink-soft" aria-label={isOpen ? 'collapse' : 'expand'} onClick={() => toggle(n.id)}><Icon name={isOpen ? 'chevD' : 'chevR'} size={16} /></button>
         ) : <span className="w-8" />}
@@ -68,7 +68,7 @@ export function CategoryPicker({ tree, value, onChange, error, id }) {
         <Icon name="chevD" size={18} className="text-ink-soft" />
       </button>
       {openPanel && (
-        <div className="absolute z-30 mt-1 w-full rounded-xl border border-[var(--line)] shadow-xl p-2 anim-pop" style={{ background: 'rgba(255,252,246,.98)' }}>
+        <div className="absolute z-30 mt-1 w-full rounded-xl border border-[var(--line)] shadow-xl p-2 anim-pop" style={{ background: "var(--pop)" }}>
           <div className="relative mb-2">
             <Icon name="search" size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-mute" />
             <input className="input pl-9" placeholder={t('form.categorySearch')} value={q} onChange={(e) => setQ(e.target.value)} autoFocus />
@@ -112,7 +112,7 @@ export function TagsInput({ tags, onChange, id }) {
 
   return (
     <div>
-      <div className="input flex flex-wrap items-center gap-1.5 !py-1.5 focus-within:border-[#1f5fae] focus-within:shadow-[0_0_0_3px_rgba(31,95,174,.25)]">
+      <div className="input flex flex-wrap items-center gap-1.5 !py-1.5 focus-within:border-[var(--focus)] focus-within:shadow-[0_0_0_3px_var(--focus-ring)]">
         {tags.map((x) => (
           <span key={x} className="chip bg-turmeric-100 text-ink !text-sm !py-1">
             {x}

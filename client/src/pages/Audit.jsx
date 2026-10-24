@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import Icon from '../components/Icon.jsx';
-import { Empty, ErrorBox, Skel, useAsync } from '../components/ui.jsx';
+import { Empty, ErrorBox, PageHeader, Skel, useAsync } from '../components/ui.jsx';
 import { api, asList } from '../lib/api.js';
 import { useI18n } from '../lib/i18n.jsx';
 import { fmtWib } from '../lib/format.js';
@@ -17,9 +17,9 @@ function Card({ g, open0 }) {
   const { lang } = useI18n();
   const T = auditText(lang);
   const [open, setOpen] = useState(open0);
-  const tone = TONE[g.kind] || 'bg-turmeric-100 text-turmeric-600';
+  const tone = TONE[g.kind] || 'bg-cream-200 text-ink-soft';
   return (
-    <li className="panel p-4">
+    <li className="glass rounded-xl p-3">
       <div className="flex flex-wrap items-start gap-x-3 gap-y-1">
         <span className={'chip ' + tone}>{g.summary}</span>
         <span className="text-sm text-ink-soft ml-auto text-right">
@@ -85,17 +85,14 @@ export default function Audit() {
   }
 
   return (
-    <div className="space-y-4">
-      <Link to={`/products/${id}`} className="btn-ghost -ml-2"><Icon name="chevL" size={18} />{t('audit.back')}</Link>
-      <div>
-        <h1 className="text-3xl font-bold">{t('audit.title')}</h1>
-        {name && <p className="text-ink-soft">{name}</p>}
-      </div>
-      {res.loading && !res.data && <div className="space-y-3">{Array.from({ length: 4 }, (_, i) => <Skel key={i} className="h-24" />)}</div>}
+    <div>
+      <PageHeader title={t('audit.title')} subtitle={name}
+        back={<Link to={`/products/${id}`} className="btn-ghost -ml-2"><Icon name="chevL" size={18} />{t('audit.back')}</Link>} />
+      {res.loading && !res.data && <div className="grid gap-3 lg:grid-cols-2">{Array.from({ length: 4 }, (_, i) => <Skel key={i} className="h-20" />)}</div>}
       {res.error && <ErrorBox error={res.error} onRetry={res.reload} />}
-      {res.data && groups.length === 0 && <div className="glass rounded-2xl"><Empty icon="history" title={t('audit.empty')} text={t('audit.emptyText')} /></div>}
-      {groups.length > 0 && <ul className="space-y-3">{groups.map((g) => <Card key={g.key} g={g} open0={g.lines.length <= 4} />)}</ul>}
-      {raw.length < total && <button className="btn-soft" disabled={more} onClick={loadMore}>{more ? t('common.wait') : t('audit.more')}</button>}
+      {res.data && groups.length === 0 && <div className="glass rounded-xl"><Empty icon="history" title={t('audit.empty')} text={t('audit.emptyText')} /></div>}
+      {groups.length > 0 && <ul className="grid gap-3 lg:grid-cols-2 items-start">{groups.map((g) => <Card key={g.key} g={g} open0={g.lines.length <= 4} />)}</ul>}
+      {raw.length < total && <button className="btn-soft mt-3" disabled={more} onClick={loadMore}>{more ? t('common.wait') : t('audit.more')}</button>}
     </div>
   );
 }

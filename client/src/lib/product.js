@@ -24,6 +24,7 @@ export function normListItem(p) {
     id: p.id,
     name: p.name,
     status: p.status,
+    category_id: p.category_id ?? p.category?.id ?? null,
     category_name: p.category_name || p.category?.name || '',
     thumb: p.cover_thumb_url || p.cover_thumb || p.thumb || '',
     price_min: p.price_min ?? p.min_price ?? p.price ?? null,
@@ -32,6 +33,7 @@ export function normListItem(p) {
     eff_max: p.effective_price_max ?? p.price_max ?? null,
     stock: p.stock_total ?? p.total_stock ?? p.stock ?? 0,
     variant_count: p.variant_count ?? p.variants_count ?? 1,
+    low_stock: !!p.low_stock,
     has_discount: !!(p.has_discount ?? p.discount_active ?? p.on_discount),
   };
 }

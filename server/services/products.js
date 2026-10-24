@@ -4,7 +4,10 @@ import { LIMITS } from '../lib/limits.js';
 import { nowWib } from '../lib/time.js';
 import { getCategory, descendantIds, categoryPath } from './categories.js';
 import { weightGrams } from './units.js';
-import { getSetting } from './settings.js';
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import { randomUUID } from 'node:crypto';
+import { getSetting, lowStockThreshold } from './settings.js';
 import { imageUrls } from './images.js';
 
 const lc = (s) => String(s).toLowerCase();
@@ -421,6 +424,114 @@ export function deleteProduct(w, id) {
   })();
 }
 
+const COPY_SUFFIX = { id: ' (salinan)', en: ' (copy)' };
+
+/**
+ * POST /products/:id/duplicate. New inactive product with the same category, scalars, axes/options,
+ * variants (fresh auto SKUs, no barcodes, stock 0), wholesale tiers, tags and images (files copied).
+ * Discounts are not copied. Every row is audited as 'create' in one save.
+ */
+export async function duplicateProduct(w, id, { lang = 'id', uploadDir }) {
+  const db = w.db;
+  const src = getProductRow(db, id);
+  if (!src) throw notFound('product');
+  const suffix = COPY_SUFFIX[lang] || COPY_SUFFIX.id;
+  const name = `${src.name.slice(0, LIMITS.productName - suffix.length).trimEnd()}${suffix}`;
+
+  const optPos = new Map(); // source option id -> [axisIdx, optionIdx]
+  const axes = db.stmt('SELECT id, name FROM product_axes WHERE product_id = ? AND deleted_at IS NULL ORDER BY position, id')
+    .all(id).map((a, k) => ({
+      id: null,
+      name: a.name,
+      options: db.stmt('SELECT id, value FROM axis_options WHERE axis_id = ? AND deleted_at IS NULL ORDER BY position, id')
+        .all(a.id).map((o, j) => { optPos.set(o.id, [k, j]); return { id: null, value: o.value }; }),
+    }));
+  const srcVars = db.stmt('SELECT * FROM product_variants WHERE product_id = ? AND deleted_at IS NULL ORDER BY position, id').all(id);
+  const links = db.stmt(
+    `SELECT vo.variant_id, vo.option_id FROM variant_options vo
+       JOIN product_variants pv ON pv.id = vo.variant_id
+      WHERE pv.product_id = ? AND pv.deleted_at IS NULL AND vo.deleted_at IS NULL`
+  ).all(id);
+  const tiers = db.stmt(
+    `SELECT t.variant_id, t.min_qty, t.price FROM wholesale_tiers t
+       JOIN product_variants pv ON pv.id = t.variant_id
+      WHERE pv.product_id = ? AND pv.deleted_at IS NULL AND t.deleted_at IS NULL ORDER BY t.min_qty`
+  ).all(id);
+  const kept = [];
+  const variants = [];
+  for (const sv of srcVars) {
+    const optionIdx = axes.map(() => -1);
+    for (const l of links) {
+      const at = l.variant_id === sv.id ? optPos.get(l.option_id) : null;
+      if (at) optionIdx[at[0]] = at[1];
+    }
+    if (optionIdx.includes(-1)) continue; // inconsistent combination: skip rather than copy garbage
+    kept.push(sv);
+    variants.push({
+      idx: variants.length, id: null, optionIdx, sku: null, barcode: null, price: sv.price, stock: 0,
+      weight_value: sv.weight_value, weight_unit_id: sv.weight_unit_id, weight_grams: sv.weight_grams, active: sv.active,
+      wholesale: tiers.filter((t) => t.variant_id === sv.id).map(({ min_qty, price }) => ({ min_qty, price })),
+    });
+  }
+  const tags = db.stmt('SELECT tag FROM product_tags WHERE product_id = ? AND deleted_at IS NULL ORDER BY id').pluck().all(id);
+  const images = db.stmt('SELECT * FROM product_images WHERE product_id = ? AND deleted_at IS NULL ORDER BY position, id').all(id);
+
+  // Copy image files first (async); the DB part below is one synchronous transaction.
+  const copied = [];
+  const cleanup = () => Promise.all(copied.flatMap((c) => [c.file, c.thumb]).map((n) => fs.rm(path.join(uploadDir, n), { force: true })));
+  try {
+    if (images.length) await fs.mkdir(uploadDir, { recursive: true });
+    for (const im of images) {
+      const base = `p${id}c-${randomUUID()}`;
+      const file = `${base}${path.extname(im.file) || '.webp'}`;
+      const thumb = `${base}-t${path.extname(im.thumb) || '.webp'}`;
+      try {
+        await fs.copyFile(path.join(uploadDir, im.file), path.join(uploadDir, file));
+      } catch (e) {
+        if (e.code === 'ENOENT') continue; // file gone from disk: skip that photo
+        throw e;
+      }
+      const entry = { ...im, file, thumb };
+      copied.push(entry);
+      try {
+        await fs.copyFile(path.join(uploadDir, im.thumb), path.join(uploadDir, thumb));
+      } catch (e) {
+        if (e.code !== 'ENOENT') throw e;
+        entry.thumb = file; // no thumbnail on disk: fall back to the main file
+      }
+    }
+  } catch (e) {
+    await cleanup();
+    throw e;
+  }
+  let coverIdx = copied.findIndex((c) => c.is_cover === 1);
+  if (coverIdx < 0) coverIdx = 0;
+
+  let newId;
+  try {
+    newId = db.transaction(() => {
+      const pid = w.insert('products', {
+        name, description: src.description, category_id: src.category_id, condition: src.condition,
+        status: 'inactive', preorder: src.preorder, preorder_days: src.preorder_days, min_purchase: src.min_purchase,
+        length_cm: src.length_cm, width_cm: src.width_cm, height_cm: src.height_cm,
+      });
+      syncTags(w, pid, tags);
+      syncStructure(w, pid, { axes, variants }, new FieldErrors());
+      const newVars = db.stmt('SELECT id FROM product_variants WHERE product_id = ? AND deleted_at IS NULL ORDER BY position, id').pluck().all(pid);
+      const varMap = new Map(kept.map((sv, i) => [sv.id, newVars[i]]));
+      copied.forEach((c, i) => w.insert('product_images', {
+        product_id: pid, variant_id: c.variant_id ? varMap.get(c.variant_id) ?? null : null,
+        file: c.file, thumb: c.thumb, width: c.width, height: c.height, position: i, is_cover: i === coverIdx ? 1 : 0,
+      }, pid));
+      return pid;
+    })();
+  } catch (e) {
+    await cleanup();
+    throw e;
+  }
+  return getProductDetail(db, newId);
+}
+
 // ---------------------------------------------------------------------------
 // Reads
 
@@ -558,11 +669,12 @@ export function listProducts(db, query = {}) {
   const total = db.stmt(`SELECT COUNT(*) FROM products p WHERE ${whereSql}`).pluck().get(...params);
   const rows = db.stmt(
     `SELECT p.id, p.name, p.status, p.category_id, c.name AS category_name, p.price_min, p.price_max,
-            p.stock_total, p.variant_count, p.preorder, p.created_at, p.updated_at
+            p.stock_total, p.stock_min, p.variant_count, p.preorder, p.created_at, p.updated_at
        FROM products p LEFT JOIN categories c ON c.id = p.category_id
       WHERE ${whereSql} ORDER BY ${SORTS[sort]} LIMIT ? OFFSET ?`
   ).all(...params, pageSize, (page - 1) * pageSize);
   if (rows.length === 0) return { items: [], total, page, page_size: pageSize };
+  const threshold = lowStockThreshold(db);
 
   const ids = rows.map((r) => r.id);
   const ph = ids.map(() => '?').join(',');
@@ -574,12 +686,13 @@ export function listProducts(db, query = {}) {
     `SELECT product_id, file, thumb FROM product_images WHERE product_id IN (${ph}) AND deleted_at IS NULL AND is_cover = 1`
   ).all(...ids).map((r) => [r.product_id, r]));
 
-  const items = rows.map((r) => {
+  const items = rows.map(({ stock_min: stockMin, ...r }) => {
     const e = eff.get(r.id);
     const cover = covers.get(r.id);
     return {
       ...r,
       preorder: r.preorder === 1,
+      low_stock: stockMin !== null && stockMin <= threshold,
       effective_price_min: e ? e.emin : r.price_min,
       effective_price_max: e ? e.emax : r.price_max,
       has_discount: e ? e.has_discount === 1 : false,

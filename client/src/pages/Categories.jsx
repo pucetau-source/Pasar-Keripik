@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import Icon from '../components/Icon.jsx';
-import { ConfirmDialog, Empty, ErrorBox, Field, Modal, Skel, TextInput, useAsync, useToast } from '../components/ui.jsx';
+import { ConfirmDialog, Empty, ErrorBox, Field, Modal, PageHeader, Skel, TextInput, useAsync, useToast } from '../components/ui.jsx';
 import { api, ApiError, normFields } from '../lib/api.js';
 import { useI18n } from '../lib/i18n.jsx';
 import { descendantIds, ensureTree, findNode, flatten } from '../lib/tree.js';
@@ -51,17 +51,17 @@ function Row({ n, depth, siblings, idx, onAdd, onEdit, onDelete, onMove }) {
   const { t } = useI18n();
   return (
     <li>
-      <div className="flex items-center gap-1 py-1.5 pr-1 rounded-lg hover:bg-white/50" style={{ paddingLeft: depth * 20 + 6 }}>
+      <div className="flex items-center gap-1 py-0.5 pr-1 rounded-lg hover:bg-[var(--row-hover)]" style={{ paddingLeft: depth * 20 + 6 }}>
         <Icon name={n.children?.length ? 'folder' : 'tag'} size={18} className="text-turmeric-600" />
         <span className="font-semibold flex-1 min-w-0 break-words pl-1">{n.name}
           {n.product_count != null && <span className="chip bg-cream-200 text-ink-soft ml-2">{t('cat.products', { n: n.product_count })}</span>}
         </span>
         <span className="flex items-center shrink-0">
-          <button className="btn-icon !w-9 !h-9" disabled={idx === 0} aria-label={t('cat.up')} title={t('cat.up')} onClick={() => onMove(n, -1)}><Icon name="up" size={18} /></button>
-          <button className="btn-icon !w-9 !h-9" disabled={idx === siblings.length - 1} aria-label={t('cat.down')} title={t('cat.down')} onClick={() => onMove(n, 1)}><Icon name="chevD" size={18} /></button>
-          <button className="btn-icon !w-9 !h-9" aria-label={t('cat.addChild')} title={t('cat.addChild')} onClick={() => onAdd(n.id)}><Icon name="plus" size={18} /></button>
-          <button className="btn-icon !w-9 !h-9" aria-label={t('common.edit')} title={t('common.edit')} onClick={() => onEdit(n)}><Icon name="edit" size={18} /></button>
-          <button className="btn-icon !w-9 !h-9 hover:!text-chili-700" aria-label={t('common.delete')} title={t('common.delete')} onClick={() => onDelete(n)}><Icon name="trash" size={18} /></button>
+          <button className="btn-icon !w-8 !h-8" disabled={idx === 0} aria-label={t('cat.up')} title={t('cat.up')} onClick={() => onMove(n, -1)}><Icon name="up" size={18} /></button>
+          <button className="btn-icon !w-8 !h-8" disabled={idx === siblings.length - 1} aria-label={t('cat.down')} title={t('cat.down')} onClick={() => onMove(n, 1)}><Icon name="chevD" size={18} /></button>
+          <button className="btn-icon !w-8 !h-8" aria-label={t('cat.addChild')} title={t('cat.addChild')} onClick={() => onAdd(n.id)}><Icon name="plus" size={18} /></button>
+          <button className="btn-icon !w-8 !h-8" aria-label={t('common.edit')} title={t('common.edit')} onClick={() => onEdit(n)}><Icon name="edit" size={18} /></button>
+          <button className="btn-icon !w-8 !h-8 hover:!text-chili-700" aria-label={t('common.delete')} title={t('common.delete')} onClick={() => onDelete(n)}><Icon name="trash" size={18} /></button>
         </span>
       </div>
       {n.children?.length > 0 && (
@@ -107,21 +107,24 @@ export default function Categories() {
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between gap-3 flex-wrap">
-        <div>
-          <h1 className="text-3xl font-bold">{t('nav.categories')}</h1>
-          <p className="text-ink-soft">{t('cat.intro')}</p>
-        </div>
+    <div>
+      <PageHeader title={t('nav.categories')} subtitle={t('cat.intro')}>
         <button className="btn-primary" onClick={() => setDlg({})}><Icon name="plus" />{t('cat.add')}</button>
-      </div>
+      </PageHeader>
 
-      <div className="glass rounded-2xl p-3 sm:p-4">
-        {res.loading && !res.data && <div className="space-y-2">{Array.from({ length: 5 }, (_, i) => <Skel key={i} className="h-9" />)}</div>}
-        {res.error && <ErrorBox error={res.error} onRetry={res.reload} />}
-        {res.data && tree.length === 0 && <Empty icon="tree" title={t('cat.empty')} text={t('cat.emptyText')} action={<button className="btn-primary" onClick={() => setDlg({})}><Icon name="plus" />{t('cat.add')}</button>} />}
-        {tree.length > 0 && <ul>{tree.map((n, i) => <Row key={n.id} n={n} depth={0} siblings={tree} idx={i} onAdd={(pid) => setDlg({ parentId: pid })} onEdit={(x) => setDlg({ node: x })} onDelete={(x) => { setDelErr(''); setDel(x); }} onMove={move} />)}</ul>}
-      </div>
+      {res.loading && !res.data && <div className="glass rounded-xl p-3 space-y-2">{Array.from({ length: 5 }, (_, i) => <Skel key={i} className="h-9" />)}</div>}
+      {res.error && <ErrorBox error={res.error} onRetry={res.reload} />}
+      {res.data && tree.length === 0 && <div className="glass rounded-xl"><Empty icon="tree" title={t('cat.empty')} text={t('cat.emptyText')} action={<button className="btn-primary" onClick={() => setDlg({})}><Icon name="plus" />{t('cat.add')}</button>} /></div>}
+      {/* One card per top-level category, flowing into columns so wide screens stay filled */}
+      {tree.length > 0 && (
+        <div className="columns-1 md:columns-2 2xl:columns-3 gap-3">
+          {tree.map((n, i) => (
+            <ul key={n.id} className="glass rounded-xl p-1.5 mb-3 break-inside-avoid">
+              <Row n={n} depth={0} siblings={tree} idx={i} onAdd={(pid) => setDlg({ parentId: pid })} onEdit={(x) => setDlg({ node: x })} onDelete={(x) => { setDelErr(''); setDel(x); }} onMove={move} />
+            </ul>
+          ))}
+        </div>
+      )}
 
       {dlg && <CategoryDialog tree={tree} node={dlg.node} parentId={dlg.parentId} onClose={() => setDlg(null)} onSaved={() => { setDlg(null); res.reload(); }} />}
       {del && (

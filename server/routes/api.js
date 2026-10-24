@@ -9,7 +9,7 @@ import * as images from '../services/images.js';
 import * as discounts from '../services/discounts.js';
 import * as stock from '../services/stock.js';
 import * as misc from '../services/misc.js';
-import { allSettings, updateSettings } from '../services/settings.js';
+import { allSettings, updateSettings, uploadLogo, deleteLogo, LOGO_MAX_BYTES, LOGO_MIME } from '../services/settings.js';
 
 const wrap = (fn) => (req, res, next) => {
   try {
@@ -38,10 +38,35 @@ export function apiRouter(db, cfg) {
     },
   });
 
+  const logoUpload = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: LOGO_MAX_BYTES, files: 1, fields: 5 },
+    fileFilter: (_req, file, cb) => {
+      // SVG (and anything else) is rejected; the content is sniffed again by sharp.
+      if (LOGO_MIME.includes(file.mimetype)) cb(null, true);
+      else cb(new AppError(415, 'IMAGE_TYPE', 'image_type', { file: file.originalname }));
+    },
+  });
+  const logoMiddleware = (req, res, next) => logoUpload.single('logo')(req, res, (err) => {
+    if (err instanceof multer.MulterError) {
+      return next(err.code === 'LIMIT_FILE_SIZE'
+        ? new AppError(413, 'IMAGE_TOO_LARGE', 'image_too_large', { max: LOGO_MAX_BYTES / 1024 / 1024 })
+        : new AppError(422, 'UPLOAD_LIMIT', 'too_many', { max: 1 }));
+    }
+    next(err);
+  });
+
   // Me / settings
   r.get('/me', (req, res) => res.json(req.user));
   r.get('/settings', (req, res) => res.json(allSettings(db, req.lang)));
-  r.put('/settings', wrap((req, res) => res.json(updateSettings(req.w, req.body, req.lang))));
+  r.put('/settings', wrap((req, res) => res.json(updateSettings(req.w, req.body, req.lang, { uploadDir: cfg.uploadDir }))));
+  r.post('/settings/logo', logoMiddleware, wrap(async (req, res) => {
+    res.json(await uploadLogo(req.w, cfg.uploadDir, req.file, req.lang));
+  }));
+  r.delete('/settings/logo', wrap((req, res) => res.json(deleteLogo(req.w, cfg.uploadDir, req.lang))));
+
+  // Dashboard stats
+  r.get('/stats', wrap((_req, res) => res.json(misc.productStats(db))));
 
   // Categories
   r.get('/categories', wrap((req, res) => res.json(categories.listCategories(db, { flat: req.query.flat === '1' }))));
@@ -65,6 +90,9 @@ export function apiRouter(db, cfg) {
   r.get('/products', wrap((req, res) => res.json(products.listProducts(db, req.query))));
   r.get('/products/:id', wrap((req, res) => res.json(products.getProductDetail(db, id(req, 'product')))));
   r.post('/products', wrap((req, res) => res.status(201).json(products.createProduct(req.w, req.body))));
+  r.post('/products/:id/duplicate', wrap(async (req, res) => {
+    res.status(201).json(await products.duplicateProduct(req.w, id(req, 'product'), { lang: req.lang, uploadDir: cfg.uploadDir }));
+  }));
   r.put('/products/:id', wrap((req, res) => res.json(products.updateProduct(req.w, id(req, 'product'), req.body))));
   r.delete('/products/:id', wrap((req, res) => {
     products.deleteProduct(req.w, id(req, 'product'));

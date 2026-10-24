@@ -1,9 +1,25 @@
 import { FieldErrors } from '../lib/errors.js';
 import * as v from '../lib/validate.js';
 import { LIMITS } from '../lib/limits.js';
+import { lowStockThreshold } from './settings.js';
 
 /** Audit history of a product (grouped per save; raw rows with ?raw=1). See services/audit.js. */
 export { productAudit } from './audit.js';
+
+/**
+ * Dashboard counters over non-deleted products. Low stock = the product has at least one live
+ * ACTIVE variant with stock <= settings.low_stock_threshold (products.stock_min, kept by triggers).
+ * One scan of the covering index idx_products_status_stock.
+ */
+export function productStats(db) {
+  return db.stmt(
+    `SELECT COUNT(*) AS total_products,
+            COALESCE(SUM(status = 'active'), 0) AS active_products,
+            COALESCE(SUM(status = 'inactive'), 0) AS inactive_products,
+            COALESCE(SUM(stock_min <= ?), 0) AS low_stock_products
+       FROM products INDEXED BY idx_products_status_stock WHERE deleted_at IS NULL`
+  ).get(lowStockThreshold(db));
+}
 
 /** Tag suggestions: prefix match, most used first. */
 export function suggestTags(db, query = {}) {

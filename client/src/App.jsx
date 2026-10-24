@@ -1,8 +1,12 @@
 import { lazy, Suspense, useEffect, useState } from 'react';
 import { Route, Routes, Link, useLocation } from 'react-router-dom';
 import Icon from './components/Icon.jsx';
+import Logo from './components/Logo.jsx';
 import { Skel } from './components/ui.jsx';
 import { useI18n, LANGS } from './lib/i18n.jsx';
+import { useTheme } from './lib/theme.jsx';
+import { useSettings } from './lib/settings.jsx';
+import { fmtNow, useNow } from './lib/clock.js';
 import { api } from './lib/api.js';
 
 const Products = lazy(() => import('./pages/Products.jsx'));
@@ -10,12 +14,14 @@ const ProductForm = lazy(() => import('./pages/ProductForm.jsx'));
 const Categories = lazy(() => import('./pages/Categories.jsx'));
 const Units = lazy(() => import('./pages/Units.jsx'));
 const Audit = lazy(() => import('./pages/Audit.jsx'));
+const Settings = lazy(() => import('./pages/Settings.jsx'));
 
 const NAV = [
   { to: '/', key: 'nav.products', icon: 'box', end: true, also: '/products' },
   { to: '/categories', key: 'nav.categories', icon: 'tree' },
   { to: '/units', key: 'nav.units', icon: 'scale' },
 ];
+const SETTINGS_NAV = { to: '/settings', key: 'nav.settings', icon: 'settings' };
 
 // Exact match for '/', prefix match for the rest (and /products/* belongs to Products)
 const isOn = (n, path) => (n.to === '/' ? path === '/' || path === n.also || path.startsWith(n.also + '/') : path === n.to || path.startsWith(n.to + '/'));
@@ -23,11 +29,10 @@ const isOn = (n, path) => (n.to === '/' ? path === '/' || path === n.also || pat
 function LangSwitch() {
   const { lang, setLang, t } = useI18n();
   return (
-    <div className="inline-flex items-center gap-1 rounded-lg bg-white/70 border border-[var(--line)] p-0.5" role="group" aria-label={t('nav.language')}>
-      <Icon name="globe" size={16} className="ml-1.5 text-ink-soft" />
+    <div className="inline-flex items-center rounded-lg border border-[var(--line)] p-0.5 bg-surface/70" role="group" aria-label={t('nav.language')}>
       {LANGS.map((l) => (
         <button key={l} onClick={() => setLang(l)} aria-pressed={lang === l}
-          className={'px-2 py-1 rounded-md text-xs font-bold uppercase min-w-[34px] ' + (lang === l ? 'bg-chili-600 text-white' : 'text-ink-soft hover:bg-chili-50')}>
+          className={'px-2 h-7 rounded-md text-xs font-bold uppercase min-w-[32px] ' + (lang === l ? 'bg-chili-600 text-white' : 'text-ink-soft hover:bg-[var(--btn-hover)]')}>
           {l}
         </button>
       ))}
@@ -35,34 +40,66 @@ function LangSwitch() {
   );
 }
 
-function Brand() {
-  const [shop, setShop] = useState('Pasar Keripik');
-  useEffect(() => { api.settings().then((s) => { const n = s?.shop_name || s?.settings?.shop_name; if (n) setShop(n); }).catch(() => {}); }, []);
+function ThemeToggle() {
+  const { dark, toggle } = useTheme();
+  const { t } = useI18n();
+  const label = dark ? t('nav.themeLight') : t('nav.themeDark');
   return (
-    <Link to="/" className="flex items-center gap-3 min-w-0">
-      <span className="w-10 h-10 rounded-xl grid place-items-center text-white shrink-0" style={{ background: 'linear-gradient(145deg,#c4452a,#8a2b16)' }} aria-hidden="true">
-        <svg width="24" height="24" viewBox="0 0 32 32"><path d="M6 21c2-8 7-12 20-10-1 10-8 14-20 10z" fill="#fbe9b8" /><path d="M9 20c4-4 8-6 13-7" stroke="#8a2b16" strokeWidth="1.6" fill="none" strokeLinecap="round" /></svg>
-      </span>
-      <span className="font-display font-bold text-lg leading-tight truncate">{shop}</span>
+    <button type="button" onClick={toggle} className="btn-icon border border-[var(--line)] bg-surface/70" aria-label={label} title={label}>
+      <Icon name={dark ? 'sun' : 'moon'} size={18} />
+    </button>
+  );
+}
+
+function Clock() {
+  const { lang } = useI18n();
+  const { date, time } = fmtNow(lang, useNow());
+  return (
+    <div className="text-xs text-ink-soft tabnum whitespace-nowrap" title="WIB (UTC+7)">
+      <span className="hidden sm:inline">{date}<span className="mx-1.5 text-ink-mute">&middot;</span></span>
+      <span className="font-semibold text-ink">{time}</span> <span className="text-ink-mute">WIB</span>
+    </div>
+  );
+}
+
+function Brand({ compact }) {
+  const { shopName, tagline } = useSettings();
+  return (
+    <Link to="/" className="flex items-center gap-2.5 min-w-0" aria-label={shopName}>
+      <Logo size={compact ? 32 : 40} />
+      {!compact && (
+        <span className="min-w-0">
+          <span className="font-display font-bold text-[19px] leading-tight block truncate">{shopName}</span>
+          {tagline && <span className="text-[11px] text-ink-mute block truncate leading-tight">{tagline}</span>}
+        </span>
+      )}
     </Link>
   );
 }
 
-function UserChip() {
+function UserCard() {
+  const { t } = useI18n();
+  const { shopName } = useSettings();
   const [me, setMe] = useState(null);
+  const loc = useLocation();
   useEffect(() => { api.me().then((m) => setMe(m?.user || m)).catch(() => {}); }, []);
-  if (!me?.name) return null;
+  const on = loc.pathname.startsWith('/settings');
   return (
-    <span className="hidden sm:inline-flex items-center gap-1.5 text-sm text-ink-soft">
-      <Icon name="user" size={16} />{me.name}
-    </span>
+    <div className="flex flex-col lg:flex-row items-center gap-2 lg:gap-2.5 pt-3 border-t border-[var(--line)]">
+      <span className="w-9 h-9 rounded-full grid place-items-center text-ink-soft shrink-0 bg-cream-200"><Icon name="user" size={18} /></span>
+      <span className="min-w-0 flex-1 hidden lg:block">
+        <span className="block text-[13px] font-semibold truncate capitalize">{me?.name || t('nav.user')}</span>
+        <span className="block text-[11px] text-ink-mute truncate">{shopName}</span>
+      </span>
+      <Link to="/settings" className={'btn-icon shrink-0 ' + (on ? '!bg-leaf-100 !text-leaf-700' : '')} aria-label={t('nav.openSettings')} title={t('nav.settings')} aria-current={on ? 'page' : undefined}><Icon name="settings" size={18} /></Link>
+    </div>
   );
 }
 
 function PageFallback() {
   return (
-    <div className="space-y-4" aria-busy="true">
-      <Skel className="h-9 w-56" />
+    <div className="space-y-3" aria-busy="true">
+      <Skel className="h-8 w-48" />
       <Skel className="h-12 w-full" />
       <Skel className="h-64 w-full" />
     </div>
@@ -75,33 +112,36 @@ export default function App() {
   useEffect(() => { window.scrollTo(0, 0); }, [loc.pathname]);
 
   return (
-    <div className="min-h-screen md:flex">
-      <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:bg-white focus:px-3 focus:py-2 focus:rounded">{t('nav.skip')}</a>
+    <div className="min-h-screen md:flex md:gap-3 md:p-3 md:pr-0">
+      <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:bg-surface focus:px-3 focus:py-2 focus:rounded">{t('nav.skip')}</a>
 
-      {/* Desktop / tablet sidebar */}
-      <aside className="hidden md:flex md:flex-col w-60 shrink-0 p-4 sticky top-0 h-screen">
-        <div className="glass rounded-2xl p-4 flex-1 flex flex-col gap-6">
-          <Brand />
+      {/* Tablet: icon rail. Desktop: full sidebar */}
+      <aside className="hidden md:block shrink-0 w-[64px] lg:w-[232px] sticky top-3 h-[calc(100vh-24px)] self-start">
+        <div className="frost rounded-2xl h-full p-2.5 lg:p-3.5 flex flex-col gap-5">
+          <div className="flex justify-center lg:justify-start"><span className="hidden lg:block min-w-0"><Brand /></span><span className="lg:hidden"><Brand compact /></span></div>
           <nav className="flex flex-col gap-1" aria-label="Menu">
-            {NAV.map((n) => (
-              <Link key={n.to} to={n.to} aria-current={isOn(n, loc.pathname) ? 'page' : undefined}
-                className={'flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold transition-colors ' + (isOn(n, loc.pathname) ? 'bg-chili-600 text-white shadow' : 'text-ink-soft hover:bg-white/70')}>
-                <Icon name={n.icon} />{t(n.key)}
-              </Link>
-            ))}
+            {NAV.map((n) => {
+              const on = isOn(n, loc.pathname);
+              return (
+                <Link key={n.to} to={n.to} aria-current={on ? 'page' : undefined} title={t(n.key)}
+                  className={'flex items-center justify-center lg:justify-start gap-3 h-10 lg:px-3 rounded-xl font-semibold transition-colors ' + (on ? 'bg-leaf-100 text-leaf-700' : 'text-ink-soft hover:bg-[var(--btn-hover)] hover:text-ink')}>
+                  <Icon name={n.icon} /><span className="hidden lg:inline">{t(n.key)}</span>
+                </Link>
+              );
+            })}
           </nav>
-          <div className="mt-auto text-xs text-ink-mute">{t('nav.tz')}</div>
+          <div className="mt-auto"><UserCard /></div>
         </div>
       </aside>
 
       <div className="flex-1 min-w-0 flex flex-col">
-        <header className="glass sticky top-0 z-30 md:mt-4 md:mr-4 md:rounded-2xl px-4 py-2.5 flex items-center justify-between gap-3">
-          <div className="md:hidden min-w-0"><Brand /></div>
+        <header className="frost !border-x-0 !border-t-0 md:!bg-transparent md:!border-0 md:!shadow-none md:![backdrop-filter:none] sticky top-0 md:static z-30 px-3 md:px-6 h-12 flex items-center justify-between gap-2">
+          <div className="md:hidden min-w-0"><Brand compact /></div>
           <div className="hidden md:block" />
-          <div className="flex items-center gap-3"><UserChip /><LangSwitch /></div>
+          <div className="flex items-center gap-2 md:gap-3"><Clock /><ThemeToggle /><LangSwitch /></div>
         </header>
 
-        <main id="main" className="flex-1 px-4 md:pl-2 md:pr-4 py-5 pb-28 md:pb-10 max-w-6xl w-full mx-auto">
+        <main id="main" className="flex-1 px-3 md:px-6 pt-3 md:pt-0 pb-24 md:pb-8 max-w-[1560px] w-full mx-auto">
           <Suspense fallback={<PageFallback />}>
             <Routes>
               <Route path="/" element={<Products />} />
@@ -110,6 +150,7 @@ export default function App() {
               <Route path="/products/:id/audit" element={<Audit />} />
               <Route path="/categories" element={<Categories />} />
               <Route path="/units" element={<Units />} />
+              <Route path="/settings" element={<Settings />} />
               <Route path="*" element={<Products />} />
             </Routes>
           </Suspense>
@@ -117,11 +158,11 @@ export default function App() {
       </div>
 
       {/* Phone bottom nav */}
-      <nav className="md:hidden fixed bottom-0 inset-x-0 z-40 glass px-2 pt-1.5 pb-[max(0.5rem,env(safe-area-inset-bottom))] grid grid-cols-3 gap-1" aria-label="Menu">
-        {NAV.map((n) => (
+      <nav className="md:hidden fixed bottom-0 inset-x-0 z-40 frost !border-x-0 !border-b-0 px-2 pt-1.5 pb-[max(0.5rem,env(safe-area-inset-bottom))] grid grid-cols-4 gap-1" aria-label="Menu">
+        {[...NAV, SETTINGS_NAV].map((n) => (
           <Link key={n.to} to={n.to} aria-current={isOn(n, loc.pathname) ? 'page' : undefined}
-            className={'flex flex-col items-center gap-0.5 py-1.5 rounded-xl text-xs font-bold ' + (isOn(n, loc.pathname) ? 'bg-chili-600 text-white' : 'text-ink-soft')}>
-            <Icon name={n.icon} size={22} />{t(n.key)}
+            className={'flex flex-col items-center gap-0.5 py-1 rounded-xl text-[11px] font-bold ' + (isOn(n, loc.pathname) ? 'bg-leaf-100 text-leaf-700' : 'text-ink-soft')}>
+            <Icon name={n.icon} size={20} />{t(n.key)}
           </Link>
         ))}
       </nav>

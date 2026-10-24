@@ -211,10 +211,10 @@ export function Discounts({ form, setForm, productId, onReload, err }) {
             </Field>
           )}
           <Field label={t('disc.type')}>
-            <div className="inline-flex rounded-lg border border-[rgba(120,80,40,.38)] overflow-hidden" role="group">
+            <div className="inline-flex rounded-lg border border-[var(--input-border)] overflow-hidden" role="group">
               {(allMode ? ['percent'] : ['price', 'percent']).map((m) => (
                 <button key={m} type="button" aria-pressed={mode === m} onClick={() => { setMode(m); setVal(''); }}
-                  className={'px-4 min-h-[42px] font-semibold ' + (mode === m ? 'bg-chili-600 text-white' : 'bg-white/80 text-ink-soft')}>{m === 'price' ? t('disc.byPrice') : t('disc.byPercent')}</button>
+                  className={'px-4 min-h-[38px] font-semibold ' + (mode === m ? 'bg-chili-600 text-white' : 'bg-surface text-ink-soft')}>{m === 'price' ? t('disc.byPrice') : t('disc.byPercent')}</button>
               ))}
             </div>
           </Field>

@@ -153,11 +153,11 @@ export default function ProductForm() {
   const unitsList = units.data || [];
 
   return (
-    <form onSubmit={save} noValidate className="space-y-4 pb-24">
+    <form onSubmit={save} noValidate className="space-y-3 pb-20">
       <div>
-        <Link to="/" className="btn-ghost -ml-2" onClick={(e) => { if (dirty && !window.confirm(t('form.leave'))) e.preventDefault(); }}><Icon name="chevL" size={18} />{t('nav.products')}</Link>
+        <Link to="/" className="btn-ghost -ml-2 !min-h-[28px]" onClick={(e) => { if (dirty && !window.confirm(t('form.leave'))) e.preventDefault(); }}><Icon name="chevL" size={18} />{t('nav.products')}</Link>
         <div className="flex items-center justify-between gap-3 flex-wrap">
-          <h1 className="text-3xl font-bold">{isNew ? t('form.titleNew') : t('form.titleEdit')}</h1>
+          <h1 className="text-2xl font-bold">{isNew ? t('form.titleNew') : t('form.titleEdit')}</h1>
           {!isNew && (
             <div className="flex gap-2 flex-wrap">
               <Link to={`/products/${id}/audit`} className="btn-soft"><Icon name="history" size={18} />{t('list.history')}</Link>
@@ -168,10 +168,21 @@ export default function ProductForm() {
         {topError && <p className="field-error mt-2 text-sm" role="alert"><Icon name="alert" size={16} className="mt-0.5" />{topError}</p>}
       </div>
 
+      <div className="grid gap-3 lg:grid-cols-[340px_minmax(0,1fr)] items-start">
+        <div className="space-y-3">
       <SectionCard id="photos" title={t('sec.photos')} hint={t('sec.photosHint')}>
         <Photos productId={isNew ? null : id} images={form.images} onChange={(imgs) => { setFormRaw((f) => ({ ...f, images: imgs })); if (isNew) setDirty(true); }} error={err('images')} />
       </SectionCard>
-
+      <SectionCard id="dims" title={t('sec.dims')} hint={t('sec.dimsHint')}>
+        <div className="grid grid-cols-3 gap-2.5">
+          {[['length_cm', 'form.length'], ['width_cm', 'form.width'], ['height_cm', 'form.height']].map(([k, l]) => (
+            <Field key={k} label={t(l)} error={err(k)} htmlFor={k}>
+              <div className="relative"><DecInput id={k} value={form[k]} error={err(k)} onChange={upd(k)} className="!pr-10" /><span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-ink-mute">cm</span></div>
+            </Field>
+          ))}
+        </div>
+      </SectionCard>
+        </div>
       <SectionCard id="info" title={t('sec.info')}>
         <div className="grid gap-4">
           <Field label={t('form.name')} error={err('name')} required htmlFor="pname" hint={`${form.name.length}/120`}>
@@ -189,10 +200,10 @@ export default function ProductForm() {
           </div>
           <div className="grid md:grid-cols-2 gap-4">
             <Field label={t('form.condition')} error={err('condition')}>
-              <div className="inline-flex rounded-lg border border-[rgba(120,80,40,.38)] overflow-hidden" role="radiogroup" aria-label={t('form.condition')}>
+              <div className="inline-flex rounded-lg border border-[var(--input-border)] overflow-hidden" role="radiogroup" aria-label={t('form.condition')}>
                 {['new', 'used'].map((c) => (
                   <button key={c} type="button" role="radio" aria-checked={form.condition === c} onClick={() => upd('condition')(c)}
-                    className={'px-5 min-h-[42px] font-semibold ' + (form.condition === c ? 'bg-chili-600 text-white' : 'bg-white/80 text-ink-soft hover:bg-white')}>{t('cond.' + c)}</button>
+                    className={'px-5 min-h-[38px] font-semibold ' + (form.condition === c ? 'bg-chili-600 text-white' : 'bg-surface text-ink-soft hover:bg-sunken')}>{t('cond.' + c)}</button>
                 ))}
               </div>
             </Field>
@@ -216,22 +227,14 @@ export default function ProductForm() {
           </div>
         </div>
       </SectionCard>
-
-      <SectionCard id="dims" title={t('sec.dims')} hint={t('sec.dimsHint')}>
-        <div className="grid grid-cols-3 gap-3 max-w-lg">
-          {[['length_cm', 'form.length'], ['width_cm', 'form.width'], ['height_cm', 'form.height']].map(([k, l]) => (
-            <Field key={k} label={t(l)} error={err(k)} htmlFor={k}>
-              <div className="relative"><DecInput id={k} value={form[k]} error={err(k)} onChange={upd(k)} className="!pr-10" /><span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-ink-mute">cm</span></div>
-            </Field>
-          ))}
-        </div>
-      </SectionCard>
+      </div>
 
       <SectionCard id="variations" title={t('sec.variations')} hint={t('sec.variationsHint')}>
         <Variations form={form} setForm={setForm} units={unitsList} err={err} isNew={isNew} onStock={() => setStockOpen(true)} />
         {units.data && unitsList.length === 0 && <p className="field-hint mt-2"><Link to="/units" className="underline text-chili-700 font-semibold">{t('var.unitsCreate')}</Link></p>}
       </SectionCard>
 
+      <div className="grid gap-3 xl:grid-cols-2 items-start">
       <SectionCard id="wholesale" title={t('sec.wholesale')} hint={t('sec.wholesaleHint')}>
         <Wholesale form={form} setForm={setForm} err={err} />
       </SectionCard>
@@ -239,13 +242,14 @@ export default function ProductForm() {
       <SectionCard id="discounts" title={t('sec.discounts')} hint={t('sec.discountsHint')}>
         <Discounts form={form} setForm={setForm} productId={isNew ? null : id} onReload={reloadProduct} err={err} />
       </SectionCard>
+      </div>
 
-      <div className="fixed bottom-[68px] md:bottom-0 inset-x-0 z-30 md:pl-[15.5rem]">
-        <div className="glass md:mx-4 md:mb-4 md:rounded-2xl px-4 py-3 flex items-center justify-between gap-3 max-w-6xl mx-auto">
+      <div className="fixed bottom-[60px] md:bottom-0 inset-x-0 z-30 md:pl-[88px] lg:pl-[256px]">
+        <div className="frost md:mx-6 md:mb-3 md:rounded-xl px-3 py-2 flex items-center justify-between gap-3 max-w-[1512px] md:mx-auto md:w-[calc(100%-3rem)]">
           <span className="text-sm text-ink-soft hidden sm:inline">{dirty ? t('form.unsaved') : isNew ? '' : t('form.upToDate')}</span>
           <div className="flex gap-2 ml-auto">
             <button type="button" className="btn-soft" onClick={() => { if (!dirty || window.confirm(t('form.leave'))) nav('/'); }}>{t('common.cancel')}</button>
-            <button className="btn-primary min-w-[9rem]" disabled={saving}>{saving ? t('common.wait') : t('form.create')}</button>
+            <button className="btn-primary min-w-[8rem]" disabled={saving}>{saving ? t('common.wait') : t('form.create')}</button>
           </div>
         </div>
       </div>

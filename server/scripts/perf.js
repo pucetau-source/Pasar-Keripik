@@ -42,6 +42,7 @@ const scenarios = {
   'detail /products/:id': () => `/products/${pickOne(ids)}`,
   'audit grouped /products/:id/audit': () => `/products/${pickOne(ids)}/audit`,
   'categories tree': () => '/categories',
+  'stats /stats (budget 10 ms)': () => '/stats',
 };
 
 function pct(sorted, p) {
