@@ -9,6 +9,7 @@ import { Discounts, Wholesale } from '../components/product/Pricing.jsx';
 import StockDialog from '../components/StockDialog.jsx';
 import { api, ApiError, asList, normFields } from '../lib/api.js';
 import { useI18n } from '../lib/i18n.jsx';
+import { usePageTitle } from '../lib/title.jsx';
 import { ensureTree } from '../lib/tree.js';
 import { emptyForm, fromApi, toApi } from '../lib/product.js';
 
@@ -57,6 +58,7 @@ export default function ProductForm() {
   const err = useCallback((p) => errors[p], [errors]);
 
   const product = useAsync(() => (isNew ? Promise.resolve(null) : api.product(id)), [id]);
+  usePageTitle(isNew ? t('form.titleNew') : product.data?.name || t('form.titleEdit'));
   const cats = useAsync(() => api.categories().then((d) => ensureTree(d?.categories || d)), []);
   const units = useAsync(() => api.units().then(asList), []);
 
@@ -153,23 +155,23 @@ export default function ProductForm() {
   const unitsList = units.data || [];
 
   return (
-    <form onSubmit={save} noValidate className="space-y-3 pb-20">
+    <form onSubmit={save} noValidate className="space-y-4">
       <div>
         <Link to="/" className="btn-ghost -ml-2 !min-h-[28px]" onClick={(e) => { if (dirty && !window.confirm(t('form.leave'))) e.preventDefault(); }}><Icon name="chevL" size={18} />{t('nav.products')}</Link>
         <div className="flex items-center justify-between gap-3 flex-wrap">
-          <h1 className="text-2xl font-bold">{isNew ? t('form.titleNew') : t('form.titleEdit')}</h1>
+          {isNew ? <span /> : <p className="text-sm font-medium text-ink-soft">{t('form.titleEdit')}</p>}
           {!isNew && (
             <div className="flex gap-2 flex-wrap">
               <Link to={`/products/${id}/audit`} className="btn-soft"><Icon name="history" size={18} />{t('list.history')}</Link>
-              <button type="button" className="btn-soft hover:!text-chili-700" onClick={() => setDelOpen(true)}><Icon name="trash" size={18} />{t('common.delete')}</button>
+              <button type="button" className="btn-soft hover:!text-danger-700" onClick={() => setDelOpen(true)}><Icon name="trash" size={18} />{t('common.delete')}</button>
             </div>
           )}
         </div>
         {topError && <p className="field-error mt-2 text-sm" role="alert"><Icon name="alert" size={16} className="mt-0.5" />{topError}</p>}
       </div>
 
-      <div className="grid gap-3 lg:grid-cols-[340px_minmax(0,1fr)] items-start">
-        <div className="space-y-3">
+      <div className="grid gap-4 lg:grid-cols-[340px_minmax(0,1fr)] items-start">
+        <div className="space-y-4">
       <SectionCard id="photos" title={t('sec.photos')} hint={t('sec.photosHint')}>
         <Photos productId={isNew ? null : id} images={form.images} onChange={(imgs) => { setFormRaw((f) => ({ ...f, images: imgs })); if (isNew) setDirty(true); }} error={err('images')} />
       </SectionCard>
@@ -194,16 +196,16 @@ export default function ProductForm() {
           <div className="grid md:grid-cols-2 gap-4">
             <Field label={t('form.category')} error={err('category_id')} required htmlFor="pcat">
               {cats.loading && !cats.data ? <Skel className="h-[42px]" /> : <CategoryPicker id="pcat" tree={cattree} value={form.category_id} error={err('category_id')} onChange={upd('category_id')} />}
-              {!cats.loading && cattree.length === 0 && <p className="field-hint"><Link className="underline text-chili-700 font-semibold" to="/categories">{t('form.categoryCreate')}</Link></p>}
+              {!cats.loading && cattree.length === 0 && <p className="field-hint"><Link className="underline text-brand-700 font-semibold" to="/categories">{t('form.categoryCreate')}</Link></p>}
             </Field>
             <Field label={t('form.tags')} error={err('tags')} htmlFor="ptags"><TagsInput id="ptags" tags={form.tags} onChange={upd('tags')} /></Field>
           </div>
           <div className="grid md:grid-cols-2 gap-4">
             <Field label={t('form.condition')} error={err('condition')}>
-              <div className="inline-flex rounded-lg border border-[var(--input-border)] overflow-hidden" role="radiogroup" aria-label={t('form.condition')}>
+              <div className="seg" role="radiogroup" aria-label={t('form.condition')}>
                 {['new', 'used'].map((c) => (
                   <button key={c} type="button" role="radio" aria-checked={form.condition === c} onClick={() => upd('condition')(c)}
-                    className={'px-5 min-h-[38px] font-semibold ' + (form.condition === c ? 'bg-chili-600 text-white' : 'bg-surface text-ink-soft hover:bg-sunken')}>{t('cond.' + c)}</button>
+                    className="px-5">{t('cond.' + c)}</button>
                 ))}
               </div>
             </Field>
@@ -231,10 +233,10 @@ export default function ProductForm() {
 
       <SectionCard id="variations" title={t('sec.variations')} hint={t('sec.variationsHint')}>
         <Variations form={form} setForm={setForm} units={unitsList} err={err} isNew={isNew} onStock={() => setStockOpen(true)} />
-        {units.data && unitsList.length === 0 && <p className="field-hint mt-2"><Link to="/units" className="underline text-chili-700 font-semibold">{t('var.unitsCreate')}</Link></p>}
+        {units.data && unitsList.length === 0 && <p className="field-hint mt-2"><Link to="/units" className="underline text-brand-700 font-semibold">{t('var.unitsCreate')}</Link></p>}
       </SectionCard>
 
-      <div className="grid gap-3 xl:grid-cols-2 items-start">
+      <div className="grid gap-4 xl:grid-cols-2 items-start">
       <SectionCard id="wholesale" title={t('sec.wholesale')} hint={t('sec.wholesaleHint')}>
         <Wholesale form={form} setForm={setForm} err={err} />
       </SectionCard>
@@ -244,8 +246,8 @@ export default function ProductForm() {
       </SectionCard>
       </div>
 
-      <div className="fixed bottom-[60px] md:bottom-0 inset-x-0 z-30 md:pl-[88px] lg:pl-[256px]">
-        <div className="frost md:mx-6 md:mb-3 md:rounded-xl px-3 py-2 flex items-center justify-between gap-3 max-w-[1512px] md:mx-auto md:w-[calc(100%-3rem)]">
+      <div className="sticky bottom-3 z-30">
+        <div className="glass-blur rounded-2xl px-4 py-2.5 flex items-center justify-between gap-3">
           <span className="text-sm text-ink-soft hidden sm:inline">{dirty ? t('form.unsaved') : isNew ? '' : t('form.upToDate')}</span>
           <div className="flex gap-2 ml-auto">
             <button type="button" className="btn-soft" onClick={() => { if (!dirty || window.confirm(t('form.leave'))) nav('/'); }}>{t('common.cancel')}</button>

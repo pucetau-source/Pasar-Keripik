@@ -10,12 +10,12 @@ function TreeNode({ n, depth, value, onPick, open, toggle, forceOpen }) {
   const isOpen = forceOpen || open.has(n.id);
   return (
     <li role="treeitem" aria-expanded={kids.length ? isOpen : undefined} aria-selected={value === n.id}>
-      <div className={'flex items-center rounded-lg ' + (value === n.id ? 'bg-chili-100' : 'hover:bg-sunken')} style={{ paddingLeft: depth * 18 }}>
+      <div className={'flex items-center rounded-lg ' + (value === n.id ? 'bg-brand-100' : 'hover:bg-sunken')} style={{ paddingLeft: depth * 18 }}>
         {kids.length ? (
           <button type="button" className="p-2 text-ink-soft" aria-label={isOpen ? 'collapse' : 'expand'} onClick={() => toggle(n.id)}><Icon name={isOpen ? 'chevD' : 'chevR'} size={16} /></button>
         ) : <span className="w-8" />}
         <button type="button" className="flex-1 text-left py-2 pr-3 font-medium flex items-center gap-2" onClick={() => onPick(n)}>
-          {n.name}{value === n.id && <Icon name="check" size={16} className="text-chili-700" />}
+          {n.name}{value === n.id && <Icon name="check" size={16} className="text-brand-700" />}
         </button>
       </div>
       {kids.length > 0 && isOpen && <ul role="group">{kids.map((c) => <TreeNode key={c.id} n={c} depth={depth + 1} value={value} onPick={onPick} open={open} toggle={toggle} forceOpen={forceOpen} />)}</ul>}
@@ -114,7 +114,7 @@ export function TagsInput({ tags, onChange, id }) {
     <div>
       <div className="input flex flex-wrap items-center gap-1.5 !py-1.5 focus-within:border-[var(--focus)] focus-within:shadow-[0_0_0_3px_var(--focus-ring)]">
         {tags.map((x) => (
-          <span key={x} className="chip bg-turmeric-100 text-ink !text-sm !py-1">
+          <span key={x} className="chip bg-brand-100 text-ink !text-sm !py-1">
             {x}
             <button type="button" className="p-0.5 rounded-full hover:bg-black/10" aria-label={`${t('common.delete')} ${x}`} onClick={() => onChange(tags.filter((y) => y !== x))}><Icon name="x" size={14} /></button>
           </span>

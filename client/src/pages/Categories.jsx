@@ -52,16 +52,16 @@ function Row({ n, depth, siblings, idx, onAdd, onEdit, onDelete, onMove }) {
   return (
     <li>
       <div className="flex items-center gap-1 py-0.5 pr-1 rounded-lg hover:bg-[var(--row-hover)]" style={{ paddingLeft: depth * 20 + 6 }}>
-        <Icon name={n.children?.length ? 'folder' : 'tag'} size={18} className="text-turmeric-600" />
+        <Icon name={n.children?.length ? 'folder' : 'tag'} size={18} className="text-brand-600" />
         <span className="font-semibold flex-1 min-w-0 break-words pl-1">{n.name}
-          {n.product_count != null && <span className="chip bg-cream-200 text-ink-soft ml-2">{t('cat.products', { n: n.product_count })}</span>}
+          {n.product_count != null && <span className="chip bg-mist-200 text-ink-soft ml-2">{t('cat.products', { n: n.product_count })}</span>}
         </span>
         <span className="flex items-center shrink-0">
           <button className="btn-icon !w-8 !h-8" disabled={idx === 0} aria-label={t('cat.up')} title={t('cat.up')} onClick={() => onMove(n, -1)}><Icon name="up" size={18} /></button>
           <button className="btn-icon !w-8 !h-8" disabled={idx === siblings.length - 1} aria-label={t('cat.down')} title={t('cat.down')} onClick={() => onMove(n, 1)}><Icon name="chevD" size={18} /></button>
           <button className="btn-icon !w-8 !h-8" aria-label={t('cat.addChild')} title={t('cat.addChild')} onClick={() => onAdd(n.id)}><Icon name="plus" size={18} /></button>
           <button className="btn-icon !w-8 !h-8" aria-label={t('common.edit')} title={t('common.edit')} onClick={() => onEdit(n)}><Icon name="edit" size={18} /></button>
-          <button className="btn-icon !w-8 !h-8 hover:!text-chili-700" aria-label={t('common.delete')} title={t('common.delete')} onClick={() => onDelete(n)}><Icon name="trash" size={18} /></button>
+          <button className="btn-icon !w-8 !h-8 hover:!text-danger-700" aria-label={t('common.delete')} title={t('common.delete')} onClick={() => onDelete(n)}><Icon name="trash" size={18} /></button>
         </span>
       </div>
       {n.children?.length > 0 && (
@@ -108,18 +108,18 @@ export default function Categories() {
 
   return (
     <div>
-      <PageHeader title={t('nav.categories')} subtitle={t('cat.intro')}>
+      <PageHeader subtitle={t('cat.intro')}>
         <button className="btn-primary" onClick={() => setDlg({})}><Icon name="plus" />{t('cat.add')}</button>
       </PageHeader>
 
-      {res.loading && !res.data && <div className="glass rounded-xl p-3 space-y-2">{Array.from({ length: 5 }, (_, i) => <Skel key={i} className="h-9" />)}</div>}
+      {res.loading && !res.data && <div className="glass rounded-2xl p-3 space-y-2">{Array.from({ length: 5 }, (_, i) => <Skel key={i} className="h-9" />)}</div>}
       {res.error && <ErrorBox error={res.error} onRetry={res.reload} />}
-      {res.data && tree.length === 0 && <div className="glass rounded-xl"><Empty icon="tree" title={t('cat.empty')} text={t('cat.emptyText')} action={<button className="btn-primary" onClick={() => setDlg({})}><Icon name="plus" />{t('cat.add')}</button>} /></div>}
+      {res.data && tree.length === 0 && <div className="glass rounded-2xl"><Empty icon="tree" title={t('cat.empty')} text={t('cat.emptyText')} action={<button className="btn-primary" onClick={() => setDlg({})}><Icon name="plus" />{t('cat.add')}</button>} /></div>}
       {/* One card per top-level category, flowing into columns so wide screens stay filled */}
       {tree.length > 0 && (
-        <div className="columns-1 md:columns-2 2xl:columns-3 gap-3">
+        <div className="columns-1 md:columns-2 2xl:columns-3 gap-4">
           {tree.map((n, i) => (
-            <ul key={n.id} className="glass rounded-xl p-1.5 mb-3 break-inside-avoid">
+            <ul key={n.id} className="glass rounded-2xl p-2 mb-4 break-inside-avoid">
               <Row n={n} depth={0} siblings={tree} idx={i} onAdd={(pid) => setDlg({ parentId: pid })} onEdit={(x) => setDlg({ node: x })} onDelete={(x) => { setDelErr(''); setDel(x); }} onMove={move} />
             </ul>
           ))}

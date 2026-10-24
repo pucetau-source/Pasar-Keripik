@@ -2,56 +2,51 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Palette: slate scale (same family as the other app) + terracotta accent + green for active states.
+/* Palette: slate neutrals + blue (primary #2563eb) / indigo (secondary #4f46e5) brand.
+   Semantic data colors (danger / warn / ok) stay separate from the brand.
    Channel triplets so Tailwind opacity modifiers keep working. */
 :root {
   --ink: 15 23 42; --ink-soft: 71 85 105; --ink-mute: 100 116 139;
-  --surface: 255 255 255; --sunken: 248 250 252; --chip: 226 232 240; --chip-2: 203 213 225;
-  --chili-50: 253 240 236; --chili-100: 250 222 212; --chili-500: 208 90 56; --chili-600: 194 81 47; --chili-700: 154 58 28;
-  --amber-100: 254 243 214; --amber-400: 245 180 60; --amber-600: 161 98 7;
-  --leaf-100: 220 252 231; --leaf-600: 22 163 74; --leaf-700: 21 128 61;
+  --surface: 255 255 255; --sunken: 241 245 249; --chip: 226 232 240; --chip-2: 203 213 225;
+  --brand-50: 239 246 255; --brand-100: 219 234 254; --brand-500: 59 130 246; --brand-600: 37 99 235; --brand-700: 29 78 216;
+  --danger-50: 254 242 242; --danger-100: 254 226 226; --danger-500: 239 68 68; --danger-600: 220 38 38; --danger-700: 185 28 28;
+  --warn-100: 254 243 214; --warn-400: 245 180 60; --warn-600: 161 98 7;
+  --ok-100: 220 252 231; --ok-600: 22 163 74; --ok-700: 21 128 61;
 
-  --page: #f8fafc;
-  --card: rgba(255, 255, 255, 0.92);
+  --page: #f9fafb;
   --card-solid: #ffffff;
-  --panel: #f8fafc;
+  --panel: #f1f5f9;
   --pop: #ffffff;
-  --frost: rgba(255, 255, 255, 0.72);
-  --frost-solid: rgba(255, 255, 255, 0.96);
-  --line: rgba(100, 116, 139, 0.2);
-  --input-bg: #ffffff;
+  --line: rgba(15, 23, 42, 0.1);
+  --input-bg: rgba(255, 255, 255, 0.92);
   --input-border: rgba(100, 116, 139, 0.45);
   --input-border-hover: rgba(71, 85, 105, 0.7);
-  --focus: #2563eb;
+  --focus: #3b82f6;
   --focus-ring: rgba(37, 99, 235, 0.25);
-  --shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 4px 14px -8px rgba(15, 23, 42, 0.14);
-  --backdrop: rgba(15, 23, 42, 0.45);
-  --row-hover: rgba(241, 245, 249, 0.9);
+  --backdrop: rgba(15, 23, 42, 0.4);
+  --row-hover: rgba(37, 99, 235, 0.05);
   --btn-hover: rgba(15, 23, 42, 0.06);
 }
 [data-theme="dark"] {
   --ink: 241 245 249; --ink-soft: 203 213 225; --ink-mute: 148 163 184;
   --surface: 30 41 59; --sunken: 22 32 51; --chip: 51 65 85; --chip-2: 71 85 105;
-  --chili-50: 62 33 27; --chili-100: 78 40 31; --chili-500: 217 98 62; --chili-600: 194 81 47; --chili-700: 252 170 145;
-  --amber-100: 63 50 33; --amber-400: 245 180 60; --amber-600: 245 190 100;
-  --leaf-100: 20 62 44; --leaf-600: 34 160 80; --leaf-700: 134 239 172;
+  --brand-50: 23 37 84; --brand-100: 30 58 138; --brand-500: 59 130 246; --brand-600: 96 165 250; --brand-700: 96 165 250;
+  --danger-50: 69 26 30; --danger-100: 88 28 33; --danger-500: 248 113 113; --danger-600: 248 113 113; --danger-700: 252 165 165;
+  --warn-100: 63 50 33; --warn-400: 245 180 60; --warn-600: 245 190 100;
+  --ok-100: 20 62 44; --ok-600: 34 160 80; --ok-700: 134 239 172;
 
   --page: #0f172a;
-  --card: rgba(30, 41, 59, 0.9);
   --card-solid: #1e293b;
   --panel: #182236;
   --pop: #1e293b;
-  --frost: rgba(30, 41, 59, 0.72);
-  --frost-solid: rgba(30, 41, 59, 0.97);
-  --line: rgba(148, 163, 184, 0.18);
-  --input-bg: #0f172a;
+  --line: rgba(255, 255, 255, 0.1);
+  --input-bg: rgba(15, 23, 42, 0.7);
   --input-border: rgba(148, 163, 184, 0.35);
   --input-border-hover: rgba(148, 163, 184, 0.6);
   --focus: #60a5fa;
   --focus-ring: rgba(96, 165, 250, 0.3);
-  --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 6px 18px -10px rgba(0, 0, 0, 0.6);
   --backdrop: rgba(2, 6, 23, 0.6);
-  --row-hover: rgba(51, 65, 85, 0.45);
+  --row-hover: rgba(96, 165, 250, 0.08);
   --btn-hover: rgba(241, 245, 249, 0.08);
 }
 
@@ -59,7 +54,8 @@ html { -webkit-text-size-adjust: 100%; }
 body {
   margin: 0;
   color: rgb(var(--ink));
-  font-family: "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", Inter, "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
   font-size: 14px;
   line-height: 1.45;
   min-height: 100vh;
@@ -67,29 +63,29 @@ body {
 }
 #root { position: relative; }
 
-h1, h2, h3 { font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif; letter-spacing: -0.01em; }
+h1, h2, h3 { letter-spacing: -0.01em; }
 
-:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 6px; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.title-glow { text-shadow: 0 0 16px rgba(37,99,235,0.28), 0 0 30px rgba(79,70,229,0.16); }
+[data-theme="dark"] .title-glow { text-shadow: 0 0 16px rgba(59,130,246,0.4), 0 0 30px rgba(99,102,241,0.22); }
 
 @layer components {
-  /* Cards: soft border, white / slate surface. No blur (cheap). */
+  /* Glass recipe: translucent pane + light top edge + directional shadow. Same for every floating surface.
+     .glass has no blur (cheap, for many small cards); .glass-blur adds the blur and is used on the few large panels. */
   .glass {
-    background: var(--card);
-    border: 1px solid var(--line);
-    box-shadow: var(--shadow);
+    @apply bg-white/85 dark:bg-slate-800/70 border border-slate-900/10 dark:border-white/10 shadow-glass dark:shadow-glass-dark;
   }
-  /* Frosted: only for the sidebar, header and dialogs (small, few layers) */
-  .frost {
-    background: var(--frost);
-    border: 1px solid var(--line);
-    box-shadow: var(--shadow);
-    -webkit-backdrop-filter: blur(12px) saturate(140%);
-    backdrop-filter: blur(12px) saturate(140%);
+  .glass-blur {
+    @apply bg-white/80 dark:bg-slate-800/60 border border-slate-900/10 dark:border-white/10 shadow-glass dark:shadow-glass-dark backdrop-blur-xl backdrop-saturate-150;
   }
-  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; }
+  .glass-lg {
+    @apply bg-white/85 dark:bg-slate-800/75 border border-slate-900/10 dark:border-white/10 shadow-glass-lg dark:shadow-glass-lg-dark backdrop-blur-xl backdrop-saturate-150;
+  }
+  .recessed { @apply bg-slate-100 dark:bg-slate-900/60 shadow-glass-inset dark:shadow-glass-inset-dark; }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; }
   .field-label { @apply block text-[13px] font-semibold text-ink mb-1; }
   .field-hint { @apply text-xs text-ink-mute mt-1; }
-  .field-error { @apply text-xs font-medium text-chili-700 mt-1 flex items-start gap-1; }
+  .field-error { @apply text-xs font-medium text-danger-700 mt-1 flex items-start gap-1; }
   .input {
     @apply w-full rounded-lg border px-3 py-1.5 text-ink placeholder:text-ink-mute/80 min-h-[38px];
     background: var(--input-bg);
@@ -99,7 +95,7 @@ h1, h2, h3 { font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Geor
   select.input { color-scheme: inherit; }
   .input:hover { border-color: var(--input-border-hover); }
   .input:focus { outline: none; border-color: var(--focus); box-shadow: 0 0 0 3px var(--focus-ring); }
-  .input[aria-invalid="true"] { border-color: rgb(var(--chili-600)); background: rgb(var(--chili-50)); }
+  .input[aria-invalid="true"] { border-color: rgb(var(--danger-600)); background: rgb(var(--danger-50)); }
   .input:disabled, .input[readonly] { background: rgb(var(--chip) / .6); color: rgb(var(--ink-soft)); }
   .btn {
     @apply inline-flex items-center justify-center gap-2 rounded-lg px-3.5 py-1.5 font-semibold min-h-[38px] select-none;
@@ -107,13 +103,11 @@ h1, h2, h3 { font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Geor
   }
   .btn:active:not(:disabled) { transform: translateY(1px); }
   .btn:disabled { opacity: .55; cursor: not-allowed; }
-  .btn-primary { @apply btn text-white; background: rgb(var(--chili-600)); box-shadow: 0 6px 14px -8px rgb(var(--chili-600) / .8); }
-  .btn-primary:hover:not(:disabled) { background: rgb(var(--chili-700)); }
-  [data-theme="dark"] .btn-primary:hover:not(:disabled) { background: rgb(var(--chili-500)); }
-  .btn-soft { @apply btn text-ink; background: var(--card-solid); border: 1px solid var(--input-border); }
+  .btn-primary { @apply btn text-white bg-blue-600 hover:enabled:bg-blue-700 dark:hover:enabled:bg-blue-500 shadow-[0_6px_14px_-8px_rgba(37,99,235,0.8)]; }
+  a.btn-primary:hover { @apply bg-blue-700 dark:bg-blue-500; }
+  .btn-soft { @apply btn text-ink bg-white/80 dark:bg-slate-700/60 border; border-color: var(--input-border); }
   .btn-soft:hover:not(:disabled) { border-color: var(--input-border-hover); background: var(--row-hover); }
-  .btn-danger { @apply btn text-white; background: #b4361f; }
-  .btn-danger:hover:not(:disabled) { background: #8f2a17; }
+  .btn-danger { @apply btn text-white bg-red-600 hover:enabled:bg-red-700; }
   .btn-ghost { @apply btn text-ink-soft; min-height: 32px; padding: 2px 8px; }
   .btn-ghost:hover:not(:disabled) { background: var(--btn-hover); color: rgb(var(--ink)); }
   .btn-icon { @apply inline-flex items-center justify-center rounded-lg text-ink-soft; width: 34px; height: 34px; }
@@ -126,10 +120,16 @@ h1, h2, h3 { font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Geor
   }
   .th { @apply text-left text-[11px] font-bold uppercase tracking-wide text-ink-mute px-2.5 lg:px-3 py-2; }
   .td { @apply px-2.5 lg:px-3 py-2 align-middle; }
-  .seg { @apply inline-flex rounded-lg overflow-hidden border; border-color: var(--input-border); }
-  .seg > button { @apply px-3.5 min-h-[36px] font-semibold text-ink-soft; background: var(--input-bg); }
-  .seg > button:hover { background: var(--row-hover); }
-  .seg > button[aria-checked="true"], .seg > button[aria-pressed="true"] { background: rgb(var(--chili-600)); color: #fff; }
+  /* Segmented control: recessed track, one raised thumb (the selected button) */
+  .seg { @apply inline-flex items-center gap-0.5 rounded-xl p-0.5 recessed; }
+  .seg > button { @apply px-3.5 min-h-[34px] rounded-lg font-semibold text-ink-soft transition-colors; }
+  .seg > button:hover { color: rgb(var(--ink)); }
+  .seg > button[aria-checked="true"], .seg > button[aria-pressed="true"] { @apply bg-white/95 dark:bg-slate-600 shadow-glass dark:shadow-glass-dark text-brand-700; }
+  [data-theme="dark"] .seg > button[aria-checked="true"], [data-theme="dark"] .seg > button[aria-pressed="true"] { @apply text-white; }
+  .seg-sm > button { @apply px-2 min-h-[30px] min-w-[32px] text-xs font-bold; }
+  /* Nav item: flat at rest, recessed when active */
+  .nav-item { @apply flex items-center gap-3 min-h-11 px-3 rounded-xl font-semibold text-gray-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700; }
+  .nav-item[aria-current="page"] { @apply bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 shadow-glass-inset dark:shadow-glass-inset-dark; }
 }
 
 @keyframes shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
@@ -142,12 +142,15 @@ h1, h2, h3 { font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Geor
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
 
-/* Fallbacks: no blur when unsupported or user asks for less transparency */
+/* Fallbacks: no blur when unsupported or when the user asks for less transparency (panels get a more opaque fill) */
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .frost { background: var(--frost-solid); }
+  .glass-blur, .glass-lg { background-color: rgba(255, 255, 255, 0.94); }
+  [data-theme="dark"] .glass-blur, [data-theme="dark"] .glass-lg { background-color: rgba(30, 41, 59, 0.94); }
 }
 @media (prefers-reduced-transparency: reduce) {
-  .frost { background: var(--frost-solid); -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .glass-blur, .glass-lg { -webkit-backdrop-filter: none; backdrop-filter: none; background-color: rgba(255, 255, 255, 0.97); }
+  .glass { background-color: rgba(255, 255, 255, 0.97); }
+  [data-theme="dark"] .glass-blur, [data-theme="dark"] .glass-lg, [data-theme="dark"] .glass { background-color: rgba(30, 41, 59, 0.97); }
 }
 
 .tabnum { font-variant-numeric: tabular-nums; }

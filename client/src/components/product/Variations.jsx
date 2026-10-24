@@ -18,7 +18,7 @@ function AxesEditor({ axes, setAxes, err }) {
             <Field className="flex-1" label={t('var.axisName', { n: i + 1 })} error={err(`axes.${i}.name`)} htmlFor={`ax${i}`}>
               <TextInput id={`ax${i}`} value={a.name} error={err(`axes.${i}.name`)} onChange={(e) => upd(i, { name: e.target.value })} placeholder={t('var.axisPh' + (i % 3))} maxLength={40} />
             </Field>
-            <button type="button" className="btn-icon hover:!text-chili-700 mb-0.5" aria-label={t('var.removeAxis')} title={t('var.removeAxis')} onClick={() => setAxes(axes.filter((_, k) => k !== i))}><Icon name="trash" /></button>
+            <button type="button" className="btn-icon hover:!text-danger-700 mb-0.5" aria-label={t('var.removeAxis')} title={t('var.removeAxis')} onClick={() => setAxes(axes.filter((_, k) => k !== i))}><Icon name="trash" /></button>
           </div>
           <p className="field-label mt-3">{t('var.options')}</p>
           <div className="flex flex-wrap gap-2">

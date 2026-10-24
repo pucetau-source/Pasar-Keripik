@@ -17,9 +17,9 @@ export function ToastProvider({ children }) {
   return (
     <ToastCtx.Provider value={push}>
       {children}
-      <div className="fixed z-[80] left-3 right-3 bottom-20 md:bottom-6 md:left-auto md:right-6 md:w-96 flex flex-col gap-2 pointer-events-none" role="status" aria-live="polite">
+      <div className="fixed z-[80] left-3 right-3 bottom-4 md:left-auto md:right-6 md:w-96 flex flex-col gap-2 pointer-events-none" role="status" aria-live="polite">
         {items.map((x) => (
-          <div key={x.id} className={'anim-pop pointer-events-auto rounded-xl px-3.5 py-2.5 text-sm font-medium shadow-lg flex items-start gap-2 text-white ' + (x.kind === 'err' ? 'bg-[#b4361f]' : 'bg-[#15803d]')}>
+          <div key={x.id} className={'anim-pop pointer-events-auto rounded-xl px-3.5 py-2.5 text-sm font-medium shadow-lg flex items-start gap-2 text-white ' + (x.kind === 'err' ? 'bg-red-700' : 'bg-green-700')}>
             <Icon name={x.kind === 'err' ? 'alert' : 'check'} size={18} className="mt-0.5" />
             <span>{x.message}</span>
           </div>
@@ -57,8 +57,7 @@ export function Modal({ title, onClose, children, footer, wide }) {
     <div className="fixed inset-0 z-[70] flex items-end sm:items-center justify-center p-0 sm:p-4 anim-fade" style={{ background: 'var(--backdrop)' }}
       onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
       <div ref={ref} role="dialog" aria-modal="true" aria-labelledby={tid}
-        className={'anim-pop w-full ' + (wide ? 'sm:max-w-3xl' : 'sm:max-w-lg') + ' max-h-[92vh] flex flex-col rounded-t-2xl sm:rounded-2xl border border-[var(--line)] shadow-2xl'}
-        style={{ background: 'var(--pop)' }}>
+        className={'glass-lg anim-pop w-full ' + (wide ? 'sm:max-w-3xl' : 'sm:max-w-lg') + ' max-h-[92vh] flex flex-col rounded-t-2xl sm:rounded-2xl'}>
         <div className="flex items-center justify-between gap-3 px-4 pt-3 pb-2.5 border-b border-[var(--line)]">
           <h2 id={tid} className="text-lg font-bold">{title}</h2>
           <button className="btn-icon" onClick={onClose} aria-label={t('common.close')}><Icon name="x" /></button>
@@ -87,7 +86,7 @@ export function ConfirmDialog({ title, message, confirmLabel, onConfirm, onClose
 export function Field({ label, hint, error, required, children, className = '', htmlFor }) {
   return (
     <div className={className}>
-      {label && <label htmlFor={htmlFor} className="field-label">{label}{required && <span className="text-chili-600" aria-hidden="true"> *</span>}</label>}
+      {label && <label htmlFor={htmlFor} className="field-label">{label}{required && <span className="text-danger-600" aria-hidden="true"> *</span>}</label>}
       {children}
       {hint && !error && <p className="field-hint">{hint}</p>}
       {error && <p className="field-error" role="alert"><Icon name="alert" size={14} className="mt-0.5" />{error}</p>}
@@ -129,7 +128,7 @@ export function Toggle({ checked, onChange, label, id }) {
   return (
     <label className="inline-flex items-center gap-3 cursor-pointer select-none">
       <input id={id} type="checkbox" role="switch" className="sr-only peer" checked={!!checked} onChange={(e) => onChange(e.target.checked)} />
-      <span className="relative w-11 h-6 rounded-full bg-ink-mute/40 peer-checked:bg-leaf-600 transition-colors peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-[var(--focus)] peer-focus-visible:outline-offset-2 after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:w-5 after:h-5 after:rounded-full after:bg-white after:transition-transform after:shadow peer-checked:after:translate-x-5" />
+      <span className="relative w-11 h-6 rounded-full bg-ink-mute/40 peer-checked:bg-blue-600 transition-colors peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-[var(--focus)] peer-focus-visible:outline-offset-2 after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:w-5 after:h-5 after:rounded-full after:bg-white after:transition-transform after:shadow peer-checked:after:translate-x-5" />
       {label && <span className="font-medium">{label}</span>}
     </label>
   );
@@ -141,7 +140,7 @@ export function Skel({ className = '' }) { return <div className={'skel ' + clas
 export function Empty({ icon = 'box', title, text, action }) {
   return (
     <div className="text-center py-10 px-6">
-      <div className="mx-auto w-14 h-14 rounded-2xl grid place-items-center bg-turmeric-100 text-turmeric-600 mb-3"><Icon name={icon} size={28} /></div>
+      <div className="mx-auto w-14 h-14 rounded-2xl grid place-items-center bg-brand-100 text-brand-600 mb-3"><Icon name={icon} size={28} /></div>
       <h3 className="text-base font-bold mb-1">{title}</h3>
       {text && <p className="text-ink-soft max-w-sm mx-auto mb-4">{text}</p>}
       {action}
@@ -153,7 +152,7 @@ export function ErrorBox({ error, onRetry }) {
   const { t } = useI18n();
   return (
     <div className="panel p-5 text-center" role="alert">
-      <Icon name="alert" size={28} className="mx-auto text-chili-600 mb-2" />
+      <Icon name="alert" size={28} className="mx-auto text-danger-600 mb-2" />
       <p className="font-semibold">{error?.message || t('common.error')}</p>
       {onRetry && <button className="btn-soft mt-3" onClick={onRetry}>{t('common.retry')}</button>}
     </div>
@@ -162,7 +161,7 @@ export function ErrorBox({ error, onRetry }) {
 
 export function SectionCard({ id, title, hint, children, aside }) {
   return (
-    <section id={id} className="glass rounded-xl p-4 scroll-mt-24">
+    <section id={id} className="glass rounded-2xl p-4 scroll-mt-24">
       <div className="flex items-start justify-between gap-3 mb-3">
         <div>
           <h2 className="text-base font-bold">{title}</h2>
@@ -207,16 +206,14 @@ export function useAsync(fn, deps) {
   return { ...state, reload, setData };
 }
 
-// Title + subtitle on the left, actions (buttons, stat cards) on the right. Wraps tightly on phones.
-export function PageHeader({ title, subtitle, children, back }) {
+// The page title lives in the shell topbar (one per page). Here: back link, a short lead line and the page actions.
+export function PageHeader({ subtitle, children, back }) {
+  if (!subtitle && !children && !back) return null;
   return (
-    <div className="mb-3">
+    <div className="mb-4">
       {back}
       <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
-        <div className="min-w-0">
-          <h1 className="text-2xl font-bold leading-tight">{title}</h1>
-          {subtitle && <p className="text-[13px] text-ink-soft">{subtitle}</p>}
-        </div>
+        {subtitle ? <p className="text-sm font-medium text-ink-soft min-w-0 flex-1 basis-60">{subtitle}</p> : <span />}
         {children && <div className="flex items-center gap-2 flex-wrap">{children}</div>}
       </div>
     </div>

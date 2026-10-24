@@ -4,9 +4,9 @@ import { useSettings } from '../lib/settings.jsx';
 export function LeafMark({ size = 36 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 40 40" aria-hidden="true" className="shrink-0">
-      <path d="M8 31C6 18 14 7 33 6c1 16-7 27-21 26" fill="#c2512f" />
+      <path d="M8 31C6 18 14 7 33 6c1 16-7 27-21 26" fill="#2563eb" />
       <path d="M12 33c1-9 6-16 16-21" stroke="#fff" strokeOpacity=".8" strokeWidth="1.6" strokeLinecap="round" fill="none" />
-      <path d="M9 34c0-5 2-9 6-12" stroke="#3f8f4f" strokeWidth="2.4" strokeLinecap="round" fill="none" />
+      <path d="M9 34c0-5 2-9 6-12" stroke="#4f46e5" strokeWidth="2.4" strokeLinecap="round" fill="none" />
     </svg>
   );
 }

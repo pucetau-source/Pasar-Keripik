@@ -85,7 +85,7 @@ export default function StockDialog({ product, onClose, onChanged }) {
                 <TextInput id="sd" inputMode="numeric" value={delta} error={err.qty_change} onChange={(e) => setDelta(e.target.value.replace(/[^\d+-]/g, ''))} placeholder="+10 / -3" className="text-center tabnum" />
                 <button type="button" className="btn-soft px-3" aria-label="+1" onClick={() => setDelta(String((Number.isNaN(n) ? 0 : n) + 1))}><Icon name="plus" size={16} /></button>
               </div>
-              {after != null && <p className="text-sm mt-1.5">{t('stock.after')}: <b className={'tabnum ' + (after < 0 ? 'text-chili-700' : '')}>{int(after)}</b></p>}
+              {after != null && <p className="text-sm mt-1.5">{t('stock.after')}: <b className={'tabnum ' + (after < 0 ? 'text-danger-700' : '')}>{int(after)}</b></p>}
             </Field>
             <Field label={t('stock.reason')} error={err.reason} htmlFor="sr" required>
               <TextInput id="sr" list="stock-reasons" value={reason} error={err.reason} onChange={(e) => setReason(e.target.value)} placeholder={t('stock.reasonPh')} maxLength={80} />
@@ -107,7 +107,7 @@ export default function StockDialog({ product, onClose, onChanged }) {
                 {hist.map((h, i) => (
                   <li key={h.id ?? i} className="panel px-3 py-2 flex items-start gap-3">
                     <span className="min-w-[3.5rem] text-center">
-                      <span className={'tabnum font-bold text-lg block leading-tight ' + (h.qty_change < 0 ? 'text-chili-700' : 'text-leaf-700')}>{h.qty_change > 0 ? '+' : ''}{int(h.qty_change)}</span>
+                      <span className={'tabnum font-bold text-lg block leading-tight ' + (h.qty_change < 0 ? 'text-danger-700' : 'text-ok-700')}>{h.qty_change > 0 ? '+' : ''}{int(h.qty_change)}</span>
                       {h.stock_after != null && <span className="tabnum text-xs text-ink-mute block">{t('stock.balance', { n: int(h.stock_after) })}</span>}
                     </span>
                     <span className="min-w-0 text-sm">

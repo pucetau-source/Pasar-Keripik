@@ -66,23 +66,23 @@ export default function Units() {
 
   return (
     <div>
-      <PageHeader title={t('nav.units')} subtitle={t('unit.intro')}>
+      <PageHeader subtitle={t('unit.intro')}>
         <button className="btn-primary" onClick={() => setDlg({})}><Icon name="plus" />{t('unit.add')}</button>
       </PageHeader>
-      {res.loading && !res.data && <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">{Array.from({ length: 4 }, (_, i) => <Skel key={i} className="h-16" />)}</div>}
+      {res.loading && !res.data && <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">{Array.from({ length: 4 }, (_, i) => <Skel key={i} className="h-16" />)}</div>}
       {res.error && <ErrorBox error={res.error} onRetry={res.reload} />}
-      {res.data && units.length === 0 && <div className="glass rounded-xl"><Empty icon="scale" title={t('unit.empty')} text={t('unit.emptyText')} action={<button className="btn-primary" onClick={() => setDlg({})}><Icon name="plus" />{t('unit.add')}</button>} /></div>}
+      {res.data && units.length === 0 && <div className="glass rounded-2xl"><Empty icon="scale" title={t('unit.empty')} text={t('unit.emptyText')} action={<button className="btn-primary" onClick={() => setDlg({})}><Icon name="plus" />{t('unit.add')}</button>} /></div>}
       {units.length > 0 && (
-        <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+        <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
           {units.map((u) => (
-            <li key={u.id} className="glass rounded-xl pl-3.5 pr-1.5 py-2 flex items-center gap-2">
-              <span className="w-10 h-10 rounded-lg grid place-items-center bg-cream-200 text-ink font-bold text-sm shrink-0">{u.symbol}</span>
+            <li key={u.id} className="glass rounded-2xl pl-3.5 pr-1.5 py-2 flex items-center gap-2">
+              <span className="w-10 h-10 rounded-lg grid place-items-center bg-mist-200 text-ink font-bold text-sm shrink-0">{u.symbol}</span>
               <span className="min-w-0 flex-1">
                 <span className="font-semibold block truncate leading-snug">{u.name}</span>
-                <span className="text-xs text-ink-mute block tabnum">{t('unit.factorCol')}: {num(u.to_base)}{u.used_count > 0 && <span className="chip bg-cream-200 text-ink-soft ml-2 !py-0">{t('unit.used', { n: u.used_count })}</span>}</span>
+                <span className="text-xs text-ink-mute block tabnum">{t('unit.factorCol')}: {num(u.to_base)}{u.used_count > 0 && <span className="chip bg-mist-200 text-ink-soft ml-2 !py-0">{t('unit.used', { n: u.used_count })}</span>}</span>
               </span>
               <button className="btn-icon" aria-label={t('common.edit') + ': ' + u.name} onClick={() => setDlg({ unit: u })}><Icon name="edit" size={18} /></button>
-              <button className="btn-icon hover:!text-chili-700" aria-label={t('common.delete') + ': ' + u.name} onClick={() => { setDelErr(''); setDel(u); }}><Icon name="trash" size={18} /></button>
+              <button className="btn-icon hover:!text-danger-700" aria-label={t('common.delete') + ': ' + u.name} onClick={() => { setDelErr(''); setDel(u); }}><Icon name="trash" size={18} /></button>
             </li>
           ))}
         </ul>

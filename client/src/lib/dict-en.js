@@ -79,6 +79,7 @@ export const en = {
   'unit.emptyText': 'Add weight units so variants can use them.', 'unit.deleteTitle': 'Delete unit?', 'unit.deleteMsg': 'Unit "{name}" will be deleted. Units still in use cannot be deleted.',
 
   'audit.title': 'Change history', 'audit.more': 'Load more', 'audit.back': 'Back to product', 'audit.empty': 'No history yet', 'audit.emptyText': 'Every change to this product is recorded here.',
+  'nav.group.catalog': 'Catalog', 'nav.group.system': 'Settings', 'nav.menu': 'Menu', 'nav.closeMenu': 'Close menu',
   'nav.settings': 'Settings', 'nav.theme': 'Theme', 'nav.themeDark': 'Switch to dark mode', 'nav.themeLight': 'Switch to light mode', 'nav.user': 'User', 'nav.openSettings': 'Open settings',
   'list.subtitle': 'Manage your product catalog and stock', 'list.duplicate': 'Duplicate', 'list.duplicated': 'Product duplicated. Review the copy before using it.', 'list.low': 'Low',
   'list.imageCol': 'Image', 'list.lowOnly': 'Low stock only', 'list.lowFilter': 'Low stock (min. {n})',

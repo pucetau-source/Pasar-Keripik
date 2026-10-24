@@ -11,7 +11,7 @@ function apply(pref) {
   const d = document.documentElement;
   d.setAttribute('data-theme', dark ? 'dark' : 'light');
   d.style.colorScheme = dark ? 'dark' : 'light';
-  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', dark ? '#0f172a' : '#f8fafc');
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', dark ? '#0f172a' : '#f9fafb');
   return dark;
 }
 

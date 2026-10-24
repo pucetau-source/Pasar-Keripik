@@ -16,8 +16,8 @@ const LOW_FILTER = true; // flip to true once GET /products supports low_stock=1
 function Thumb({ src, name, size = 44 }) {
   const [bad, setBad] = useState(false);
   const box = { width: size, height: size };
-  if (!src || bad) return <div style={box} className="rounded-lg bg-turmeric-100 text-turmeric-600 grid place-items-center shrink-0"><Icon name="image" size={18} /></div>;
-  return <img src={imgUrl(src)} alt="" width={size} height={size} style={box} loading="lazy" decoding="async" onError={() => setBad(true)} className="rounded-lg object-cover shrink-0 bg-cream-200" />;
+  if (!src || bad) return <div style={box} className="rounded-lg bg-brand-100 text-brand-600 grid place-items-center shrink-0"><Icon name="image" size={18} /></div>;
+  return <img src={imgUrl(src)} alt="" width={size} height={size} style={box} loading="lazy" decoding="async" onError={() => setBad(true)} className="rounded-lg object-cover shrink-0 bg-mist-200" />;
 }
 
 function PriceRange({ p }) {
@@ -26,7 +26,7 @@ function PriceRange({ p }) {
   return (
     <span className="tabnum">
       {a === b || b == null ? rupiah(a) : `${rupiah(a)} \u2013 ${rupiah(b)}`}
-      {p.has_discount && <span className="chip bg-chili-100 text-chili-700 ml-1.5 align-middle !py-0">{t('list.discount')}</span>}
+      {p.has_discount && <span className="chip bg-danger-100 text-danger-700 ml-1.5 align-middle !py-0">{t('list.discount')}</span>}
     </span>
   );
 }
@@ -35,8 +35,8 @@ function StatusChip({ s }) {
   const { t } = useI18n();
   const on = s === 'active';
   return (
-    <span className={'chip ' + (on ? 'bg-leaf-100 text-leaf-700' : 'bg-cream-200 text-ink-soft')}>
-      <span className={'w-1.5 h-1.5 rounded-full ' + (on ? 'bg-leaf-600' : 'bg-ink-mute')} aria-hidden="true" />{on ? t('status.active') : t('status.inactive')}
+    <span className={'chip ' + (on ? 'bg-ok-100 text-ok-700' : 'bg-mist-200 text-ink-soft')}>
+      <span className={'w-1.5 h-1.5 rounded-full ' + (on ? 'bg-ok-600' : 'bg-ink-mute')} aria-hidden="true" />{on ? t('status.active') : t('status.inactive')}
     </span>
   );
 }
@@ -45,9 +45,9 @@ function StockBadge({ p }) {
   const { t } = useI18n();
   const n = p.stock;
   return (
-    <span className={'tabnum font-semibold inline-flex items-center gap-1 ' + (n <= 0 ? 'text-chili-700' : p.low_stock ? 'text-turmeric-600' : '')}>
+    <span className={'tabnum font-semibold inline-flex items-center gap-1 ' + (n <= 0 ? 'text-danger-700' : p.low_stock ? 'text-warn-600' : '')}>
       {p.low_stock && n > 0 && <Icon name="alert" size={14} aria-label={t('list.low')} />}
-      {int(n)}{n <= 0 && <span className="chip bg-chili-100 text-chili-700 !py-0">{t('list.out')}</span>}
+      {int(n)}{n <= 0 && <span className="chip bg-danger-100 text-danger-700 !py-0">{t('list.out')}</span>}
     </span>
   );
 }
@@ -62,9 +62,9 @@ function StatCard({ icon, tone, label, value, onClick, active }) {
       </span>
     </>
   );
-  const cls = 'glass rounded-xl px-3 py-2 flex items-center gap-2.5 sm:min-w-[140px] ' + (active ? '!border-chili-600 ring-1 ring-chili-600 ' : '');
+  const cls = 'glass rounded-2xl px-3.5 py-2.5 flex items-center gap-2.5 sm:min-w-[150px] ' + (active ? '!border-blue-600 ring-1 ring-blue-600 ' : '');
   return onClick
-    ? <button type="button" onClick={onClick} aria-pressed={!!active} className={cls + 'hover:bg-sunken transition-colors'}>{body}</button>
+    ? <button type="button" onClick={onClick} aria-pressed={!!active} className={cls + 'hover:shadow-glass-lg dark:hover:shadow-glass-lg-dark transition-shadow'}>{body}</button>
     : <div className={cls}>{body}</div>;
 }
 
@@ -149,27 +149,26 @@ export default function Products() {
     <>
       <Link className="btn-icon" title={t('common.edit')} aria-label={t('common.edit') + ': ' + p.name} to={`/products/${p.id}`}><Icon name="edit" size={18} /></Link>
       <button className="btn-icon" title={t('list.duplicate')} aria-label={t('list.duplicate') + ': ' + p.name} disabled={!!dupId} onClick={() => duplicate(p)}><Icon name="copy" size={18} /></button>
-      <button className="btn-icon hover:!text-chili-700" title={t('common.delete')} aria-label={t('common.delete') + ': ' + p.name} onClick={() => setConfirm(p)}><Icon name="trash" size={18} /></button>
+      <button className="btn-icon hover:!text-danger-700" title={t('common.delete')} aria-label={t('common.delete') + ': ' + p.name} onClick={() => setConfirm(p)}><Icon name="trash" size={18} /></button>
     </>
   );
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-x-3 gap-y-3">
         <div className="flex-1 basis-[120px] min-w-0">
-          <h1 className="text-2xl font-bold leading-tight">{t('nav.products')}</h1>
-          <p className="text-[13px] text-ink-soft">{t('list.subtitle')}</p>
+          <p className="text-sm font-medium text-ink-soft">{t('list.subtitle')}</p>
         </div>
         <Link to="/products/new" className="btn-primary order-2 lg:order-3"><Icon name="plus" />{t('list.add')}</Link>
         <div className="order-3 lg:order-2 w-full lg:w-auto grid grid-cols-3 gap-2 lg:flex">
-          <StatCard icon="box" tone="bg-cream-200 text-ink-soft" label={t('stat.total')} value={st?.total_products} />
-          <StatCard icon="alert" tone="bg-chili-100 text-chili-700" label={t('stat.low')} value={st?.low_stock_products}
+          <StatCard icon="box" tone="bg-mist-200 text-ink-soft" label={t('stat.total')} value={st?.total_products} />
+          <StatCard icon="alert" tone="bg-danger-100 text-danger-700" label={t('stat.low')} value={st?.low_stock_products}
             onClick={LOW_FILTER ? () => set({ low_stock: low ? '' : '1' }) : undefined} active={!!low} />
-          <StatCard icon="checkc" tone="bg-leaf-100 text-leaf-700" label={t('stat.active')} value={st?.active_products} />
+          <StatCard icon="checkc" tone="bg-ok-100 text-ok-700" label={t('stat.active')} value={st?.active_products} />
         </div>
       </div>
 
-      <div className="glass rounded-xl p-2.5 grid gap-2 grid-cols-2 lg:grid-cols-[minmax(0,1fr)_200px_150px_170px]">
+      <div className="glass rounded-2xl p-3 grid gap-2 grid-cols-2 lg:grid-cols-[minmax(0,1fr)_200px_150px_170px]">
         <div className="relative col-span-2 lg:col-span-1">
           <Icon name="search" size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-mute pointer-events-none" />
           <input type="search" className="input pl-10" placeholder={t('list.search')} aria-label={t('list.search')} value={qInput} onChange={(e) => setQInput(e.target.value)} />
@@ -198,7 +197,7 @@ export default function Products() {
 
       {low && (
         <p className="text-[13px] text-ink-soft flex items-center gap-2">
-          <span className="chip bg-chili-100 text-chili-700"><Icon name="alert" size={12} />{t('list.lowFilter', { n: int(threshold) })}</span>
+          <span className="chip bg-danger-100 text-danger-700"><Icon name="alert" size={12} />{t('list.lowFilter', { n: int(threshold) })}</span>
           <button type="button" className="underline hover:text-ink" onClick={() => set({ low_stock: '' })}>{t('list.clear')}</button>
         </p>
       )}
@@ -206,7 +205,7 @@ export default function Products() {
       {list.error && <ErrorBox error={list.error} onRetry={list.reload} />}
 
       {!list.error && (
-        <div className="glass rounded-xl overflow-hidden" aria-busy={list.loading}>
+        <div className="glass-blur rounded-2xl" aria-busy={list.loading}>
           {list.loading && !d && (
             <div className="p-3 space-y-2.5">{Array.from({ length: 6 }, (_, i) => <div key={i} className="flex gap-3 items-center"><Skel className="w-11 h-11" /><div className="flex-1 space-y-2"><Skel className="h-3.5 w-2/3" /><Skel className="h-3 w-1/3" /></div></div>)}</div>
           )}
@@ -263,7 +262,7 @@ export default function Products() {
                   </li>
                 ))}
               </ul>
-              <div className="px-3 py-2 border-t border-[var(--line)]"><Pagination page={page} pages={d.pages} total={d.total} onPage={(n) => set({ page: n })} /></div>
+              <div className="px-4 py-3 border-t border-[var(--line)]"><Pagination page={page} pages={d.pages} total={d.total} onPage={(n) => set({ page: n })} /></div>
             </>
           )}
         </div>

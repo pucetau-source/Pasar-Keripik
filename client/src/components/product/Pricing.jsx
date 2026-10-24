@@ -63,7 +63,7 @@ export function Wholesale({ form, setForm, err }) {
             <option value="all">{t('ws.all')}</option>
             {vs.map((v, i) => <option key={v.key} value={i}>{variantLabel(v, form.axes)}</option>)}
           </select>
-          {scope === 'all' && !same && <p className="field-hint text-chili-700">{t('ws.differ')}</p>}
+          {scope === 'all' && !same && <p className="field-hint text-danger-700">{t('ws.differ')}</p>}
           <p className="field-hint">{pctMode ? t('ws.allExplain') : t('ws.oneExplain')}</p>
         </Field>
       )}
@@ -77,7 +77,7 @@ export function Wholesale({ form, setForm, err }) {
               {pctMode
                 ? <Field label={t('ws.percent')} htmlFor={`wp${i}`}><NumInput id={`wp${i}`} value={x.pct} max={99} error={m} placeholder="10" onChange={(v) => upd(i, { pct: v })} /></Field>
                 : <Field label={t('ws.price')} htmlFor={`wp${i}`}><Money id={`wp${i}`} value={x.price} error={m} onChange={(v) => upd(i, { price: v })} /></Field>}
-              <button type="button" className="btn-icon hover:!text-chili-700 mb-0.5" aria-label={t('common.delete')} onClick={() => (pctMode ? setPctTiers(rows.filter((_, k) => k !== i)) : setTiers(tiers.filter((_, k) => k !== i)))}><Icon name="trash" /></button>
+              <button type="button" className="btn-icon hover:!text-danger-700 mb-0.5" aria-label={t('common.delete')} onClick={() => (pctMode ? setPctTiers(rows.filter((_, k) => k !== i)) : setTiers(tiers.filter((_, k) => k !== i)))}><Icon name="trash" /></button>
             </div>
             {m ? <p className="field-error" role="alert"><Icon name="alert" size={14} className="mt-0.5" />{m}</p> : resultHint(x) && <p className="field-hint">{resultHint(x)}</p>}
           </div>
@@ -176,22 +176,22 @@ export function Discounts({ form, setForm, productId, onReload, err }) {
         <ul className="space-y-2">
           {existing.map((g) => (
             <li key={g.ids.join()} className="panel p-3 flex items-start gap-3">
-              <Icon name="percent" className="text-chili-600 mt-0.5" />
+              <Icon name="percent" className="text-brand-600 mt-0.5" />
               <div className="flex-1 min-w-0">
                 <p className="font-semibold">{g.pmax > g.price ? `${rupiah(g.price)} - ${rupiah(g.pmax)}` : rupiah(g.price)}<span className="font-normal text-ink-soft"> · {labelOf(g.vis)}</span></p>
                 <p className="text-sm text-ink-soft">{fmtWib(g.starts_at, lang)} &rarr; {fmtWib(g.ends_at, lang)}</p>
               </div>
-              <button type="button" className="btn-icon hover:!text-chili-700" aria-label={t('common.delete')} onClick={() => setDel(g)}><Icon name="trash" /></button>
+              <button type="button" className="btn-icon hover:!text-danger-700" aria-label={t('common.delete')} onClick={() => setDel(g)}><Icon name="trash" /></button>
             </li>
           ))}
           {staged.map((s, i) => (
             <li key={'s' + i} className="panel p-3 flex items-start gap-3 border-dashed">
-              <Icon name="percent" className="text-turmeric-600 mt-0.5" />
+              <Icon name="percent" className="text-brand-600 mt-0.5" />
               <div className="flex-1 min-w-0">
-                <p className="font-semibold">{s.percent ? `${s.percent}%` : rupiah(s.price)} <span className="font-normal text-ink-soft">· {s.label}</span> <span className="chip bg-turmeric-100 text-ink">{t('disc.staged')}</span></p>
+                <p className="font-semibold">{s.percent ? `${s.percent}%` : rupiah(s.price)} <span className="font-normal text-ink-soft">· {s.label}</span> <span className="chip bg-brand-100 text-ink">{t('disc.staged')}</span></p>
                 <p className="text-sm text-ink-soft">{fmtWib(s.starts_at, lang)} &rarr; {fmtWib(s.ends_at, lang)}</p>
               </div>
-              <button type="button" className="btn-icon hover:!text-chili-700" aria-label={t('common.delete')} onClick={() => setForm((f) => ({ ...f, stagedDiscounts: f.stagedDiscounts.filter((_, k) => k !== i) }))}><Icon name="trash" /></button>
+              <button type="button" className="btn-icon hover:!text-danger-700" aria-label={t('common.delete')} onClick={() => setForm((f) => ({ ...f, stagedDiscounts: f.stagedDiscounts.filter((_, k) => k !== i) }))}><Icon name="trash" /></button>
             </li>
           ))}
         </ul>
@@ -200,7 +200,7 @@ export function Discounts({ form, setForm, productId, onReload, err }) {
 
       <div className="panel p-4 space-y-3">
         <h3 className="font-bold">{t('disc.new')}</h3>
-        {noPrice && <p className="field-hint text-chili-700">{t('disc.needPrice')}</p>}
+        {noPrice && <p className="field-hint text-danger-700">{t('disc.needPrice')}</p>}
         <div className="grid sm:grid-cols-2 gap-3">
           {vs.length > 1 && (
             <Field label={t('disc.scope')} htmlFor="dsc" hint={allMode ? t('disc.allExplain') : undefined}>
@@ -211,10 +211,10 @@ export function Discounts({ form, setForm, productId, onReload, err }) {
             </Field>
           )}
           <Field label={t('disc.type')}>
-            <div className="inline-flex rounded-lg border border-[var(--input-border)] overflow-hidden" role="group">
+            <div className="seg" role="group">
               {(allMode ? ['percent'] : ['price', 'percent']).map((m) => (
                 <button key={m} type="button" aria-pressed={mode === m} onClick={() => { setMode(m); setVal(''); }}
-                  className={'px-4 min-h-[38px] font-semibold ' + (mode === m ? 'bg-chili-600 text-white' : 'bg-surface text-ink-soft')}>{m === 'price' ? t('disc.byPrice') : t('disc.byPercent')}</button>
+                  className="px-4">{m === 'price' ? t('disc.byPrice') : t('disc.byPercent')}</button>
               ))}
             </div>
           </Field>

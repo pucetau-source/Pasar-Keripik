@@ -69,12 +69,12 @@ export default function Settings() {
 
   return (
     <form onSubmit={save} noValidate>
-      <PageHeader title={t('set.title')} subtitle={t('set.subtitle')}>
+      <PageHeader subtitle={t('set.subtitle')}>
         <button className="btn-primary" disabled={busy || !f}>{busy ? t('common.wait') : t('common.save')}</button>
       </PageHeader>
 
-      <div className="grid gap-3 lg:grid-cols-2 items-start">
-        <section className="glass rounded-xl p-4" aria-labelledby="s-shop">
+      <div className="grid gap-4 lg:grid-cols-2 items-start">
+        <section className="glass rounded-2xl p-4" aria-labelledby="s-shop">
           <h2 id="s-shop" className="text-base font-bold">{t('set.shop')}</h2>
           <p className="text-[13px] text-ink-soft mb-3">{t('set.shopHint')}</p>
 
@@ -86,7 +86,7 @@ export default function Settings() {
               <div className="flex flex-wrap gap-2">
                 <input ref={fileRef} type="file" accept="image/png,image/jpeg,image/webp" className="sr-only" onChange={onFile} aria-label={t('set.logoUpload')} tabIndex={-1} />
                 <button type="button" className="btn-soft !min-h-[34px]" disabled={logoBusy} onClick={() => fileRef.current?.click()}><Icon name="upload" size={16} />{S.logoUrl ? t('set.logoChange') : t('set.logoUpload')}</button>
-                {S.logoUrl && <button type="button" className="btn-ghost hover:!text-chili-700" disabled={logoBusy} onClick={removeLogo}><Icon name="trash" size={16} />{t('set.logoRemove')}</button>}
+                {S.logoUrl && <button type="button" className="btn-ghost hover:!text-danger-700" disabled={logoBusy} onClick={removeLogo}><Icon name="trash" size={16} />{t('set.logoRemove')}</button>}
               </div>
             </div>
           </div>
@@ -99,7 +99,7 @@ export default function Settings() {
           )}
         </section>
 
-        <section className="glass rounded-xl p-4" aria-labelledby="s-pref">
+        <section className="glass rounded-2xl p-4" aria-labelledby="s-pref">
           <h2 id="s-pref" className="text-base font-bold">{t('set.prefs')}</h2>
           <p className="text-[13px] text-ink-soft mb-3">{t('set.prefsHint')}</p>
           <div className="grid gap-3.5">

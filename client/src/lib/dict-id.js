@@ -79,6 +79,7 @@ export const id = {
   'unit.emptyText': 'Tambahkan satuan berat, misalnya gram atau kilogram, agar bisa dipakai di varian.', 'unit.deleteTitle': 'Hapus satuan?', 'unit.deleteMsg': 'Satuan "{name}" akan dihapus. Satuan yang masih dipakai tidak bisa dihapus.',
 
   'audit.title': 'Riwayat perubahan', 'audit.more': 'Muat lebih banyak', 'audit.back': 'Kembali ke produk', 'audit.empty': 'Belum ada riwayat', 'audit.emptyText': 'Setiap perubahan pada produk akan tercatat di sini.',
+  'nav.group.catalog': 'Katalog', 'nav.group.system': 'Pengaturan', 'nav.menu': 'Menu', 'nav.closeMenu': 'Tutup menu',
   'nav.settings': 'Pengaturan', 'nav.theme': 'Tema', 'nav.themeDark': 'Ganti ke mode gelap', 'nav.themeLight': 'Ganti ke mode terang', 'nav.user': 'Pengguna', 'nav.openSettings': 'Buka pengaturan',
   'list.subtitle': 'Kelola katalog dan stok produk', 'list.duplicate': 'Gandakan', 'list.duplicated': 'Produk digandakan. Periksa salinannya sebelum dipakai.', 'list.low': 'Menipis',
   'list.imageCol': 'Gambar', 'list.lowOnly': 'Hanya stok menipis', 'list.lowFilter': 'Stok menipis (min. {n})',

@@ -5,11 +5,12 @@ import { Empty, ErrorBox, PageHeader, Skel, useAsync } from '../components/ui.js
 import { api, asList } from '../lib/api.js';
 import { useI18n } from '../lib/i18n.jsx';
 import { fmtWib } from '../lib/format.js';
+import { usePageTitle } from '../lib/title.jsx';
 import { auditText, buildGroups } from '../lib/audit.js';
 import { ensureTree, flatten } from '../lib/tree.js';
 
 const PAGE = 100;
-const TONE = { created: 'bg-leaf-100 text-leaf-700', deleted: 'bg-chili-100 text-chili-700' };
+const TONE = { created: 'bg-ok-100 text-ok-700', deleted: 'bg-danger-100 text-danger-700' };
 const lineOf = (c) => c.text || (c.label ? `${c.label}: ${c.from ?? '-'} \u2192 ${c.to ?? '-'}` : '');
 
 // One card per save: who, when (WIB), summary and a collapsible list of plain-language changes.
@@ -17,9 +18,9 @@ function Card({ g, open0 }) {
   const { lang } = useI18n();
   const T = auditText(lang);
   const [open, setOpen] = useState(open0);
-  const tone = TONE[g.kind] || 'bg-cream-200 text-ink-soft';
+  const tone = TONE[g.kind] || 'bg-mist-200 text-ink-soft';
   return (
-    <li className="glass rounded-xl p-3">
+    <li className="glass rounded-2xl p-3">
       <div className="flex flex-wrap items-start gap-x-3 gap-y-1">
         <span className={'chip ' + tone}>{g.summary}</span>
         <span className="text-sm text-ink-soft ml-auto text-right">
@@ -56,6 +57,7 @@ export default function Audit() {
   const raw = useMemo(() => [...asList(first), ...extra], [first, extra]);
   const total = first?.total ?? raw.length;
   const name = res.data?.[1]?.name;
+  usePageTitle(name ? `${t('audit.title')} · ${name}` : t('audit.title'));
 
   const groups = useMemo(() => {
     if (!res.data) return [];
@@ -86,12 +88,12 @@ export default function Audit() {
 
   return (
     <div>
-      <PageHeader title={t('audit.title')} subtitle={name}
+      <PageHeader subtitle={name}
         back={<Link to={`/products/${id}`} className="btn-ghost -ml-2"><Icon name="chevL" size={18} />{t('audit.back')}</Link>} />
-      {res.loading && !res.data && <div className="grid gap-3 lg:grid-cols-2">{Array.from({ length: 4 }, (_, i) => <Skel key={i} className="h-20" />)}</div>}
+      {res.loading && !res.data && <div className="grid gap-4 lg:grid-cols-2">{Array.from({ length: 4 }, (_, i) => <Skel key={i} className="h-20" />)}</div>}
       {res.error && <ErrorBox error={res.error} onRetry={res.reload} />}
-      {res.data && groups.length === 0 && <div className="glass rounded-xl"><Empty icon="history" title={t('audit.empty')} text={t('audit.emptyText')} /></div>}
-      {groups.length > 0 && <ul className="grid gap-3 lg:grid-cols-2 items-start">{groups.map((g) => <Card key={g.key} g={g} open0={g.lines.length <= 4} />)}</ul>}
+      {res.data && groups.length === 0 && <div className="glass rounded-2xl"><Empty icon="history" title={t('audit.empty')} text={t('audit.emptyText')} /></div>}
+      {groups.length > 0 && <ul className="grid gap-4 lg:grid-cols-2 items-start">{groups.map((g) => <Card key={g.key} g={g} open0={g.lines.length <= 4} />)}</ul>}
       {raw.length < total && <button className="btn-soft mt-3" disabled={more} onClick={loadMore}>{more ? t('common.wait') : t('audit.more')}</button>}
     </div>
   );
