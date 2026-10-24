@@ -98,6 +98,8 @@ const M = {
     image_order_mismatch: 'Urutan foto harus berisi semua foto produk ini, masing-masing sekali.',
     variant_not_found_for_image: 'Varian untuk foto ini tidak ditemukan di produk ini.',
     logo_use_upload: 'Logo diganti lewat unggah logo (atau dikosongkan untuk ikon bawaan).',
+    folder_busy: 'Folder foto sedang dipakai program lain (misalnya sedang dibuka). Tutup dulu lalu coba lagi. Tidak ada yang diubah.',
+    file_move_failed: 'File foto tidak bisa dipindahkan. Tidak ada yang diubah, coba lagi sebentar lagi.',
   },
   en: {
     validation_failed: 'Some fields are not valid. Please check the highlighted fields.',
@@ -183,6 +185,8 @@ const M = {
     image_order_mismatch: 'The photo order must list every photo of this product exactly once.',
     variant_not_found_for_image: 'The variant for this photo was not found in this product.',
     logo_use_upload: 'Change the logo by uploading a file (or clear it to use the default icon).',
+    folder_busy: 'The photo folder is in use by another program (for example open in Explorer). Close it and try again. Nothing was changed.',
+    file_move_failed: 'The photo files could not be moved. Nothing was changed; please try again shortly.',
   },
 };
 

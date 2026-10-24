@@ -9,6 +9,7 @@ import { openDb } from './db/index.js';
 import { AppError, fromSqliteError, toResponse } from './lib/errors.js';
 import { langMiddleware, currentUserMiddleware } from './middleware/context.js';
 import { apiRouter } from './routes/api.js';
+import { syncFolders } from './services/folders.js';
 
 /** HTTP status carried by an http-errors style error (send/serve-static/express), else 0. */
 const httpStatus = (err) => Number(err?.status || err?.statusCode) || 0;
@@ -20,6 +21,8 @@ export function createApp(overrides = {}) {
     seed: { adminUserid: cfg.seedAdminUserid, adminName: cfg.seedAdminName, shopName: cfg.seedShopName, defaultLang: cfg.defaultLang },
   });
   fs.mkdirSync(cfg.uploadDir, { recursive: true });
+  // Category image folders + moving legacy/stray image files into them (idempotent).
+  syncFolders(db, cfg.uploadDir);
 
   const app = express();
   app.disable('x-powered-by');
@@ -34,8 +37,11 @@ export function createApp(overrides = {}) {
     });
   }
 
-  // Uploaded images: file names are unique per upload, so cache forever.
-  app.use('/uploads', express.static(cfg.uploadDir, { maxAge: '365d', immutable: true, index: false, fallthrough: false }));
+  // Uploaded images (UPLOAD_DIR/<category folders>/<uuid>.webp): names are unique per upload, so
+  // cache forever. A rename/move changes the URL. Folders themselves are never listed (404).
+  app.use('/uploads', express.static(cfg.uploadDir, {
+    maxAge: '365d', immutable: true, index: false, redirect: false, dotfiles: 'deny', fallthrough: false,
+  }));
 
   app.use('/api', express.json({ limit: '1mb' }), langMiddleware(db, cfg), currentUserMiddleware(db, cfg), (req, res, next) => {
     res.set('Cache-Control', 'no-store');

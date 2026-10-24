@@ -11,7 +11,7 @@ import { flatten, ensureTree } from '../lib/tree.js';
 import { imgUrl, normList } from '../lib/product.js';
 
 const PAGE_SIZE = 20;
-const LOW_FILTER = false; // flip to true once GET /products supports low_stock=1 (server has no such filter yet)
+const LOW_FILTER = true; // flip to true once GET /products supports low_stock=1 (server has no such filter yet)
 
 function Thumb({ src, name, size = 44 }) {
   const [bad, setBad] = useState(false);

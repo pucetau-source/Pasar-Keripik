@@ -1,15 +1,20 @@
 import fs from 'node:fs/promises';
-import path from 'node:path';
 import { randomUUID } from 'node:crypto';
 import sharp from 'sharp';
+import { absPath, joinRel, productFolder, withFileOps, dirOfRel } from './folders.js';
 import { AppError, FieldErrors, notFound } from '../lib/errors.js';
 import * as v from '../lib/validate.js';
 import { getSetting } from './settings.js';
 
 export const IMAGE_MIME = ['image/jpeg', 'image/png', 'image/webp'];
 const MAIN_PX = 1600;
+const baseName = (rel) => rel.slice(rel.lastIndexOf('/') + 1);
 const THUMB_PX = 320;
+// sharp only ever reads buffers here, but never let its file cache keep a handle open (Windows
+// cannot rename a folder that contains an open file).
+sharp.cache({ files: 0 });
 
+/** file/thumb are paths relative to UPLOAD_DIR ('keripik/keripik-pisang/<uuid>.webp'). */
 export function imageUrls(row) {
   return { url: `/uploads/${row.file}`, thumb_url: `/uploads/${row.thumb}` };
 }
@@ -70,11 +75,13 @@ export async function uploadImages(w, uploadDir, productId, files, body = {}) {
   const count = liveImages(db, productId).length;
   if (count + files.length > max) throw new AppError(422, 'IMAGE_TOO_MANY', 'image_too_many', { max, count });
 
-  await fs.mkdir(uploadDir, { recursive: true });
+  // Files go straight into the folder of the product's category (UPLOAD_DIR root without one).
   const processed = [];
+  const remove = () => Promise.all(processed.flatMap((p) => [p.file, p.thumb])
+    .map((n) => fs.rm(absPath(uploadDir, n), { force: true }).catch(() => {})));
   try {
     for (const f of files) {
-      const base = `p${productId}-${randomUUID()}`;
+      const base = randomUUID();
       const img = sharp(f.buffer, { failOn: 'error', limitInputPixels: 50_000_000 }).rotate();
       let main;
       try {
@@ -85,26 +92,44 @@ export async function uploadImages(w, uploadDir, productId, files, body = {}) {
       }
       const thumb = await img.clone().resize(THUMB_PX, THUMB_PX, { fit: 'inside', withoutEnlargement: true })
         .webp({ quality: 70 }).toBuffer();
-      const file = `${base}.webp`;
-      const thumbFile = `${base}-t.webp`;
-      await fs.writeFile(path.join(uploadDir, file), main.data);
-      await fs.writeFile(path.join(uploadDir, thumbFile), thumb);
+      const folder = productFolder(db, productId); // re-read: a rename may have happened while encoding
+      const file = joinRel(folder, `${base}.webp`);
+      const thumbFile = joinRel(folder, `${base}.thumb.webp`);
       processed.push({ file, thumb: thumbFile, width: main.info.width, height: main.info.height });
+      await fs.mkdir(absPath(uploadDir, folder), { recursive: true });
+      await fs.writeFile(absPath(uploadDir, file), main.data);
+      await fs.writeFile(absPath(uploadDir, thumbFile), thumb);
     }
   } catch (e) {
-    await Promise.all(processed.flatMap((p) => [p.file, p.thumb]).map((n) => fs.rm(path.join(uploadDir, n), { force: true })));
+    await remove();
     throw e;
   }
 
-  const ids = db.transaction(() => {
-    let pos = db.stmt('SELECT COALESCE(MAX(position), -1) FROM product_images WHERE product_id = ? AND deleted_at IS NULL').pluck().get(productId);
-    const out = processed.map((p) => w.insert('product_images', {
-      product_id: productId, variant_id: variantId, file: p.file, thumb: p.thumb,
-      width: p.width, height: p.height, position: ++pos, is_cover: 0,
-    }, productId));
-    fixCover(w, productId);
-    return out;
-  })();
+  let ids;
+  try {
+    ids = withFileOps(db, uploadDir, (ops) => {
+      // The category may have been renamed/moved (or the product re-categorised) while we encoded.
+      const now = productFolder(db, productId);
+      if (!db.stmt('SELECT 1 FROM products WHERE id = ? AND deleted_at IS NULL').get(productId)) throw notFound('product');
+      const final = processed.map((p) => {
+        if (dirOfRel(p.file) === now) return p;
+        const moved = { ...p, file: joinRel(now, baseName(p.file)), thumb: joinRel(now, baseName(p.thumb)) };
+        ops.move(p.file, moved.file);
+        ops.move(p.thumb, moved.thumb);
+        return moved;
+      });
+      let pos = db.stmt('SELECT COALESCE(MAX(position), -1) FROM product_images WHERE product_id = ? AND deleted_at IS NULL').pluck().get(productId);
+      const out = final.map((p) => w.insert('product_images', {
+        product_id: productId, variant_id: variantId, file: p.file, thumb: p.thumb,
+        width: p.width, height: p.height, position: ++pos, is_cover: 0,
+      }, productId));
+      fixCover(w, productId);
+      return out;
+    });
+  } catch (e) {
+    await remove();
+    throw e;
+  }
   return listImages(db, productId).filter((im) => ids.includes(im.id));
 }
 

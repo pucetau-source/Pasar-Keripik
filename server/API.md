@@ -8,7 +8,7 @@ Language: `Accept-Language: id|en` (or `?lang=en`); default comes from `settings
 { "error": { "code": "VALIDATION", "message": "Ada isian yang belum benar...", "fields": { "variants[0].price": "Wajib diisi." } } }
 ```
 - `fields` only on validation-type errors. Keys are paths into the request body: `name`, `axes[1].options[0]`, `variants[2].wholesale[1].price`, `items[0].price`, ...
-- Status: 400 BAD_JSON / BAD_REQUEST (malformed URL escape such as `%E0%A4%A`), 404 NOT_FOUND (also for any bad `/uploads/...` path: missing file, `..` traversal, malformed escape — never a 500 or stack trace), 409 business conflict (CATEGORY_HAS_CHILDREN, CATEGORY_HAS_PRODUCTS, UNIT_IN_USE, DISCOUNT_OVERLAP, STOCK_NEGATIVE, SKU_TAKEN), 413 IMAGE_TOO_LARGE, 415 IMAGE_TYPE, 422 VALIDATION / IMAGE_TOO_MANY / IMAGE_UNREADABLE, 500 INTERNAL.
+- Status: 400 BAD_JSON / BAD_REQUEST (malformed URL escape such as `%E0%A4%A`), 404 NOT_FOUND (also for any bad `/uploads/...` path: missing file, `..` traversal, malformed escape — never a 500 or stack trace), 409 business conflict (CATEGORY_HAS_CHILDREN, CATEGORY_HAS_PRODUCTS, UNIT_IN_USE, DISCOUNT_OVERLAP, STOCK_NEGATIVE, SKU_TAKEN, FOLDER_BUSY), 413 IMAGE_TOO_LARGE, 415 IMAGE_TYPE, 422 VALIDATION / IMAGE_TOO_MANY / IMAGE_UNREADABLE, 500 INTERNAL / FILE_MOVE_FAILED.
 - Show `error.message` as the banner and `error.fields[path]` inline.
 
 ## Paged lists
@@ -40,11 +40,21 @@ Low stock = the product has **at least one active variant** with `stock <= setti
 Product name 120, description 3000, category name 80, unit name 50, unit symbol 8, tag 40, variation name 40, option 40, SKU 60, barcode 40, stock reason 80, stock note 200 (characters). Prices (variant, wholesale, discount) are whole Rupiah **>= 1**; 0 is rejected with `"Harga minimal Rp1."` / `"Price must be at least Rp1."`.
 
 ## Categories
-- `GET /categories` -> tree: `[{ id, parent_id, name, position, product_count, children: [...] }]` (sorted by position)
-- `GET /categories?flat=1` -> `[{ id, parent_id, name, position, depth, path: "Keripik > Singkong", product_count, child_count }]` (pre-order; handy for pickers)
+- `GET /categories` -> tree: `[{ id, parent_id, name, position, folder, product_count, children: [...] }]` (sorted by position)
+- `GET /categories?flat=1` -> `[{ id, parent_id, name, position, folder, depth, path: "Keripik > Singkong", product_count, child_count }]` (pre-order; handy for pickers)
 - `POST /categories` `{ name, parent_id?: id|null, position?: int }` -> 201 category row
 - `PUT /categories/:id` `{ name?, parent_id?: id|null, position?: int }` -> category row. Rename, move (parent_id) and reorder (position = 0-based index among siblings; siblings are renumbered).
 - `DELETE /categories/:id` -> 204; 409 with a clear message if it has children or products.
+- Category rows (POST/PUT responses) include `folder` (see below).
+
+### Image folders (mirror the category tree)
+Every category has a folder under `UPLOAD_DIR`; `categories.folder` (migration 004) stores its full relative path, e.g. `keripik/keripik-pisang`.
+- Folder name = slug of the name: lowercase ascii (accents stripped), runs of anything other than `a-z0-9` -> `-`, max 60 chars. `'Keripik Pisang'` -> `keripik-pisang`. No ascii left -> `category-<id>`. Windows device names (`con`, `nul`, `com1`, ...) are never used.
+- Unique among siblings: `keripik-pisang`, `keripik-pisang-2`, `keripik-pisang-3`, ... (a name that already exists on disk is never reused or overwritten).
+- **Create** (any depth): folder is created (`mkdir -p`). Existing categories get folders at startup (idempotent backfill).
+- **Rename / move**: when the slug or parent changes, the folder (with all sub-folders and files) is renamed on disk and `categories.folder` of the whole subtree + every `product_images` path under it are rewritten in one transaction. Same-slug renames (`'Keripik Pisang'` -> `'keripik pisang!'`) keep the folder. If a file operation fails (e.g. Windows: folder open in another program) everything is rolled back and the API answers **409 `FOLDER_BUSY`** (or 500 `FILE_MOVE_FAILED`) with a message saying nothing was changed. Old image URLs stop working (404); the API returns the new ones.
+- **Delete** (soft, only when empty): the folder is renamed `<slug>-unused` (`-unused-2`, ... when taken), files are never deleted; `categories.folder` records the new name (in the same `delete` audit row). Creating a category with the same name again gets a fresh `<slug>` folder.
+- The shop logo stays in the `UPLOAD_DIR` root.
 
 ## Units
 - `GET /units` -> `[{ id, name, symbol, to_base, position, used_count, created_at, updated_at }]`
@@ -54,7 +64,8 @@ Product name 120, description 3000, category name 80, unit name 50, unit symbol 
 
 ## Products
 ### List
-`GET /products?q=&category_id=&status=active|inactive&page=&page_size=&sort=`
+`GET /products?q=&category_id=&status=active|inactive&low_stock=1&page=&page_size=&sort=`
+- `low_stock=1` (or `true`): only products that are low on stock, same rule as `GET /stats` / the item `low_stock` flag (`products.stock_min <= low_stock_threshold`, via index `idx_products_status_stock`). `0`/`false`/absent = no filter; anything else -> 422 `fields.low_stock`. Combines with every other filter.
 - `sort`: `newest` (default) | `oldest` | `updated` | `name_asc` | `name_desc` | `price_asc` | `price_desc` | `stock_asc` | `stock_desc`
 - `q` matches name (contains), tags (prefix), SKU/barcode (exact). `category_id` includes descendants.
 ```
@@ -102,6 +113,7 @@ Rules:
 - `weight_grams = weight_value * unit.to_base` (server computed).
 - PUT is partial for scalar fields and `tags`. `axes` and `variants` are a full replace and must be sent **together**. Variants are matched by `id`, else by identical option combination; matched variants keep their id and stock. Removed variants/axes/options/tiers are soft-deleted. `stock` is ignored for existing variants (use the stock endpoint).
 - A variant price cannot be lowered to/below one of its active or scheduled discounts.
+- Changing `category_id` moves the product's image files + thumbnails (also of removed photos) into the new category's folder and updates their paths in the same transaction (409 `FOLDER_BUSY` + full rollback on a file error).
 - `DELETE /products/:id` -> 204 (soft delete; its variants/tags/discounts are soft-deleted too).
 
 ### Duplicate
@@ -109,7 +121,7 @@ Rules:
 - `name` = source name + `' (salinan)'` (id) or `' (copy)'` (en, from `Accept-Language` / `?lang=`); the source part is cut so the result is at most 120 characters.
 - `status: 'inactive'`; same category, description, condition, pre-order, min purchase, dimensions, tags, axes/options (same order), variants (price, weight, active, wholesale tiers).
 - Variants get fresh auto SKUs (`<sku_prefix><newId>-<n>`), `barcode: null`, `stock: 0` (no stock movements). Discounts are **not** copied.
-- Images: files are copied (new names), same order/cover; photos linked to a variant are linked to the matching new variant.
+- Images: files are copied (new uuid names, into the same category folder), same order/cover; photos linked to a variant are linked to the matching new variant.
 - Audit: one save on the new product, `action: 'created'`.
 
 ### Audit
@@ -152,6 +164,10 @@ items: [{ id, at, action: 'create'|'update'|'delete', table_name, record_id,
 - `PUT /images/:id` `{ variant_id?: id|null, is_cover?: true }` -> image *(extra: link a photo to a variant / set cover)*
 - `DELETE /images/:id` -> 204 (soft delete; next photo becomes cover).
 - Files: `url` / `thumb_url` are served from `/uploads/...` (cached immutable).
+- Storage: saved directly in the product category's folder with uuid names; the DB (`product_images.file` / `thumb`) stores the path relative to `UPLOAD_DIR` and the URL is `/uploads/<that path>`:
+  `file: keripik/keripik-pisang/3f2b…-….webp` -> `url: /uploads/keripik/keripik-pisang/3f2b…-….webp`,
+  `thumb: keripik/keripik-pisang/3f2b…-….thumb.webp` -> `thumb_url: /uploads/keripik/keripik-pisang/3f2b…-….thumb.webp`.
+  Paths are server-generated (`[a-z0-9-]` folders + uuid names) and checked (no `..`, no absolute paths) before any disk access. Folder URLs are never listed (404). At startup, image files that are not in their product's category folder (e.g. old files in the upload root) are moved there (idempotent).
 
 ## Stock
 - `POST /variants/:id/stock` `{ qty_change: int (+/-, not 0) }` **or** `{ set_to: int>=0 }`, plus `reason` (required; suggestions in `settings.stock_reasons`), `note?`, `ref?`

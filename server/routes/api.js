@@ -28,6 +28,7 @@ function id(req, entity, name = 'id') {
 
 export function apiRouter(db, cfg) {
   const r = express.Router();
+  const fileOpts = { uploadDir: cfg.uploadDir };
 
   const upload = multer({
     storage: multer.memoryStorage(),
@@ -70,10 +71,10 @@ export function apiRouter(db, cfg) {
 
   // Categories
   r.get('/categories', wrap((req, res) => res.json(categories.listCategories(db, { flat: req.query.flat === '1' }))));
-  r.post('/categories', wrap((req, res) => res.status(201).json(categories.createCategory(req.w, req.body))));
-  r.put('/categories/:id', wrap((req, res) => res.json(categories.updateCategory(req.w, id(req, 'category'), req.body))));
+  r.post('/categories', wrap((req, res) => res.status(201).json(categories.createCategory(req.w, req.body, fileOpts))));
+  r.put('/categories/:id', wrap((req, res) => res.json(categories.updateCategory(req.w, id(req, 'category'), req.body, fileOpts))));
   r.delete('/categories/:id', wrap((req, res) => {
-    categories.deleteCategory(req.w, id(req, 'category'));
+    categories.deleteCategory(req.w, id(req, 'category'), fileOpts);
     res.status(204).end();
   }));
 
@@ -93,7 +94,7 @@ export function apiRouter(db, cfg) {
   r.post('/products/:id/duplicate', wrap(async (req, res) => {
     res.status(201).json(await products.duplicateProduct(req.w, id(req, 'product'), { lang: req.lang, uploadDir: cfg.uploadDir }));
   }));
-  r.put('/products/:id', wrap((req, res) => res.json(products.updateProduct(req.w, id(req, 'product'), req.body))));
+  r.put('/products/:id', wrap((req, res) => res.json(products.updateProduct(req.w, id(req, 'product'), req.body, fileOpts))));
   r.delete('/products/:id', wrap((req, res) => {
     products.deleteProduct(req.w, id(req, 'product'));
     res.status(204).end();

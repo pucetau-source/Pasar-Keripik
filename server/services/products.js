@@ -5,8 +5,8 @@ import { nowWib } from '../lib/time.js';
 import { getCategory, descendantIds, categoryPath } from './categories.js';
 import { weightGrams } from './units.js';
 import fs from 'node:fs/promises';
-import path from 'node:path';
 import { randomUUID } from 'node:crypto';
+import { absPath, categoryFolder, joinRel, moveProductImages, withFileOps } from './folders.js';
 import { getSetting, lowStockThreshold } from './settings.js';
 import { imageUrls } from './images.js';
 
@@ -379,7 +379,11 @@ export function createProduct(w, body = {}) {
   return getProductDetail(db, id);
 }
 
-export function updateProduct(w, id, body = {}) {
+/**
+ * Changing category_id moves the product's image files (+ thumbs, also of removed photos) into the
+ * new category's folder in the same transaction (rolled back if a file cannot be moved).
+ */
+export function updateProduct(w, id, body = {}, { uploadDir = null } = {}) {
   const db = w.db;
   const cur = getProductRow(db, id);
   if (!cur) throw notFound('product');
@@ -401,11 +405,14 @@ export function updateProduct(w, id, body = {}) {
     if (low !== null && low <= data.min_purchase) errs.add('min_purchase', 'max_value', { max: low - 1 });
   }
   errs.throwIfAny();
-  db.transaction(() => {
+  const recategorised = data.category_id !== undefined && data.category_id !== cur.category_id;
+  withFileOps(db, uploadDir, (ops) => {
     w.update('products', id, data, id, cur);
     if (tags) syncTags(w, id, tags);
     if (structure) syncStructure(w, id, structure, new FieldErrors());
-  })();
+    // Files last: every DB check above has passed; a failed move undoes the moves and the writes.
+    if (recategorised && uploadDir) moveProductImages(w, ops, id, categoryFolder(db, data.category_id));
+  });
   return getProductDetail(db, id);
 }
 
@@ -476,17 +483,19 @@ export async function duplicateProduct(w, id, { lang = 'id', uploadDir }) {
   const tags = db.stmt('SELECT tag FROM product_tags WHERE product_id = ? AND deleted_at IS NULL ORDER BY id').pluck().all(id);
   const images = db.stmt('SELECT * FROM product_images WHERE product_id = ? AND deleted_at IS NULL ORDER BY position, id').all(id);
 
-  // Copy image files first (async); the DB part below is one synchronous transaction.
+  // Copy image files first (async) into the category folder; the DB part below is one transaction.
+  const folder = categoryFolder(db, src.category_id);
   const copied = [];
-  const cleanup = () => Promise.all(copied.flatMap((c) => [c.file, c.thumb]).map((n) => fs.rm(path.join(uploadDir, n), { force: true })));
+  const cleanup = () => Promise.all(copied.flatMap((c) => [c.file, c.thumb])
+    .map((n) => fs.rm(absPath(uploadDir, n), { force: true }).catch(() => {})));
   try {
-    if (images.length) await fs.mkdir(uploadDir, { recursive: true });
+    if (images.length) await fs.mkdir(absPath(uploadDir, folder), { recursive: true });
     for (const im of images) {
-      const base = `p${id}c-${randomUUID()}`;
-      const file = `${base}${path.extname(im.file) || '.webp'}`;
-      const thumb = `${base}-t${path.extname(im.thumb) || '.webp'}`;
+      const base = randomUUID();
+      const file = joinRel(folder, `${base}.webp`);
+      const thumb = joinRel(folder, `${base}.thumb.webp`);
       try {
-        await fs.copyFile(path.join(uploadDir, im.file), path.join(uploadDir, file));
+        await fs.copyFile(absPath(uploadDir, im.file), absPath(uploadDir, file));
       } catch (e) {
         if (e.code === 'ENOENT') continue; // file gone from disk: skip that photo
         throw e;
@@ -494,7 +503,7 @@ export async function duplicateProduct(w, id, { lang = 'id', uploadDir }) {
       const entry = { ...im, file, thumb };
       copied.push(entry);
       try {
-        await fs.copyFile(path.join(uploadDir, im.thumb), path.join(uploadDir, thumb));
+        await fs.copyFile(absPath(uploadDir, im.thumb), absPath(uploadDir, thumb));
       } catch (e) {
         if (e.code !== 'ENOENT') throw e;
         entry.thumb = file; // no thumbnail on disk: fall back to the main file
@@ -509,7 +518,7 @@ export async function duplicateProduct(w, id, { lang = 'id', uploadDir }) {
 
   let newId;
   try {
-    newId = db.transaction(() => {
+    newId = withFileOps(db, uploadDir, (ops) => {
       const pid = w.insert('products', {
         name, description: src.description, category_id: src.category_id, condition: src.condition,
         status: 'inactive', preorder: src.preorder, preorder_days: src.preorder_days, min_purchase: src.min_purchase,
@@ -523,8 +532,10 @@ export async function duplicateProduct(w, id, { lang = 'id', uploadDir }) {
         product_id: pid, variant_id: c.variant_id ? varMap.get(c.variant_id) ?? null : null,
         file: c.file, thumb: c.thumb, width: c.width, height: c.height, position: i, is_cover: i === coverIdx ? 1 : 0,
       }, pid));
+      // No-op unless the category folder was renamed while the files were being copied.
+      if (copied.length) moveProductImages(w, ops, pid, categoryFolder(db, src.category_id));
       return pid;
-    })();
+    });
   } catch (e) {
     await cleanup();
     throw e;
@@ -646,11 +657,19 @@ export function listProducts(db, query = {}) {
   const status = v.oneOf(errs, 'status', query.status, ['active', 'inactive'], { def: null });
   const categoryId = v.int(errs, 'category_id', query.category_id, { min: 1 });
   const q = v.str(errs, 'q', query.q, { max: 100 });
+  const lowStock = v.bool(errs, 'low_stock', query.low_stock === '' ? undefined : query.low_stock, { def: false });
   errs.throwIfAny();
 
   const where = ['p.deleted_at IS NULL'];
   const params = [];
   if (status) { where.push('p.status = ?'); params.push(status); }
+  if (lowStock) {
+    // Same rule as /stats and the low_stock flag. The status IN (...) lets SQLite seek the
+    // (status, stock_min) index idx_products_status_stock even without a status filter.
+    if (!status) where.push(`p.status IN ('active', 'inactive')`);
+    where.push('p.stock_min <= ?');
+    params.push(lowStockThreshold(db));
+  }
   if (categoryId) {
     const ids = descendantIds(db, categoryId);
     if (ids.length === 0) return { items: [], total: 0, page, page_size: pageSize };

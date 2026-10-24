@@ -36,6 +36,8 @@ const scenarios = {
   'list root category (descendants)': () => `/products?category_id=${pickOne(cats)}`,
   'list leaf category + status': () => `/products?category_id=${pickOne(leaf)}&status=active`,
   'list search q (name/tag/sku)': () => `/products?q=${pickOne(['pedas', 'balado', 'singkong', 'renyah', 'PK12'])}`,
+  'list low_stock=1': () => '/products?low_stock=1',
+  'list low_stock=1 + status': () => '/products?low_stock=1&status=active&page=2',
   'list sort price_asc': () => '/products?sort=price_asc&page=3',
   'list sort stock_desc': () => '/products?sort=stock_desc',
   'list sort name_asc': () => '/products?sort=name_asc&page=10',

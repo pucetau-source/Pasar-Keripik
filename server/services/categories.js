@@ -1,6 +1,8 @@
 import { AppError, FieldErrors, notFound, fieldError } from '../lib/errors.js';
 import * as v from '../lib/validate.js';
 import { LIMITS } from '../lib/limits.js';
+import { absPath, categoryFolder, fileError, pickFolder, relocateFolder, unusedFolder, withFileOps } from './folders.js';
+import fs from 'node:fs';
 
 const SELECT_ALIVE = 'SELECT * FROM categories WHERE id = ? AND deleted_at IS NULL';
 
@@ -11,7 +13,7 @@ export function getCategory(db, id) {
 /** Full tree (or flat list with path) of live categories with direct product counts. */
 export function listCategories(db, { flat = false } = {}) {
   const rows = db.stmt(
-    `SELECT id, parent_id, name, position, created_at, updated_at
+    `SELECT id, parent_id, name, position, folder, created_at, updated_at
        FROM categories WHERE deleted_at IS NULL ORDER BY position, name COLLATE NOCASE`
   ).all();
   const counts = new Map(
@@ -34,7 +36,7 @@ export function listCategories(db, { flat = false } = {}) {
     for (const n of nodes) {
       const p = [...pathNames, n.name];
       out.push({
-        id: n.id, parent_id: n.parent_id, name: n.name, position: n.position, depth,
+        id: n.id, parent_id: n.parent_id, name: n.name, position: n.position, folder: n.folder, depth,
         path: p.join(' > '), product_count: n.product_count, child_count: n.children.length,
       });
       walk(n.children, p, depth + 1);
@@ -102,7 +104,11 @@ function readParent(db, errs, raw) {
   return pid;
 }
 
-export function createCategory(w, body = {}) {
+/**
+ * Creates a category and its image folder (UPLOAD_DIR/<parent folders>/<slug>, mkdir -p).
+ * Without `uploadDir` (scripts) only categories.folder is set; startup creates the folder.
+ */
+export function createCategory(w, body = {}, { uploadDir = null } = {}) {
   const errs = new FieldErrors();
   const name = v.str(errs, 'name', body.name, { required: true, max: LIMITS.categoryName });
   const parentId = readParent(w.db, errs, body.parent_id);
@@ -110,16 +116,28 @@ export function createCategory(w, body = {}) {
   errs.throwIfAny();
   assertNameFree(w.db, parentId, name);
   return w.db.transaction(() => {
-    const max = w.db.stmt(
+    const db = w.db;
+    const max = db.stmt(
       `SELECT COALESCE(MAX(position), -1) FROM categories WHERE COALESCE(parent_id,0) = COALESCE(?,0) AND deleted_at IS NULL`
     ).pluck().get(parentId);
-    const id = w.insert('categories', { parent_id: parentId, name, position: max + 1 });
+    // The id is fixed up front so a name without any ascii letters can use 'category-<id>'.
+    const nextId = db.stmt('SELECT COALESCE(MAX(id), 0) + 1 FROM categories').pluck().get();
+    const folder = pickFolder(db, uploadDir, categoryFolder(db, parentId), name, { fallbackId: nextId });
+    const id = w.insert('categories', { id: nextId, parent_id: parentId, name, position: max + 1, folder });
     if (position !== null) renumber(w, parentId, id, position);
-    return getCategory(w.db, id);
+    if (uploadDir) {
+      try { fs.mkdirSync(absPath(uploadDir, folder), { recursive: true }); } catch (e) { throw fileError(e); }
+    }
+    return getCategory(db, id);
   })();
 }
 
-export function updateCategory(w, id, body = {}) {
+/**
+ * Rename / move / reorder. When the folder name changes (new slug or new parent), the folder and
+ * everything below it is renamed on disk and categories.folder + product_images paths of the whole
+ * subtree are rewritten in the same transaction; a failed file move rolls everything back.
+ */
+export function updateCategory(w, id, body = {}, { uploadDir = null } = {}) {
   const db = w.db;
   const cur = getCategory(db, id);
   if (!cur) throw notFound('category');
@@ -137,9 +155,19 @@ export function updateCategory(w, id, body = {}) {
   }
   if (name.toLowerCase() !== cur.name.toLowerCase() || parentId !== cur.parent_id) assertNameFree(db, parentId, name, id);
 
-  return db.transaction(() => {
-    const moved = parentId !== cur.parent_id;
-    w.update('categories', id, { name, parent_id: parentId }, null, cur);
+  const moved = parentId !== cur.parent_id;
+  const folder = moved || name !== cur.name || !cur.folder
+    ? pickFolder(db, uploadDir, categoryFolder(db, parentId), name, { selfId: id, keep: cur.folder })
+    : cur.folder;
+
+  return withFileOps(db, uploadDir, (ops) => {
+    if (folder !== cur.folder && cur.folder) {
+      if (!ops.move(cur.folder, folder) && uploadDir) ops.mkdir(absPath(uploadDir, folder));
+    } else if (folder !== cur.folder && uploadDir) {
+      ops.mkdir(absPath(uploadDir, folder));
+    }
+    w.update('categories', id, { name, parent_id: parentId, folder }, null, cur);
+    if (cur.folder) relocateFolder(w, cur.folder, folder);
     if (moved) {
       renumber(w, cur.parent_id); // close the gap in the old parent
       renumber(w, parentId, id, position);
@@ -147,10 +175,14 @@ export function updateCategory(w, id, body = {}) {
       renumber(w, parentId, id, position);
     }
     return getCategory(db, id);
-  })();
+  });
 }
 
-export function deleteCategory(w, id) {
+/**
+ * Soft delete (only when empty). Its folder is kept on disk but renamed '<folder>-unused'
+ * (-unused-2, ... when taken); files are never deleted.
+ */
+export function deleteCategory(w, id, { uploadDir = null } = {}) {
   const db = w.db;
   const cur = getCategory(db, id);
   if (!cur) throw notFound('category');
@@ -158,8 +190,15 @@ export function deleteCategory(w, id) {
   if (children) throw new AppError(409, 'CATEGORY_HAS_CHILDREN', 'category_has_children', { name: cur.name, count: children });
   const products = db.stmt('SELECT COUNT(*) FROM products WHERE category_id = ? AND deleted_at IS NULL').pluck().get(id);
   if (products) throw new AppError(409, 'CATEGORY_HAS_PRODUCTS', 'category_has_products', { name: cur.name, count: products });
-  db.transaction(() => {
+  withFileOps(db, uploadDir, (ops) => {
+    if (cur.folder) {
+      const unused = unusedFolder(db, uploadDir, cur.folder, id);
+      ops.move(cur.folder, unused);
+      // Same audit row as the delete: before = old folder, after = '-unused' folder + deleted_at.
+      db.stmt('UPDATE categories SET folder = ? WHERE id = ?').run(unused, id);
+      relocateFolder(w, cur.folder, unused); // deleted sub-categories / old photos inside it
+    }
     w.softDelete('categories', id, null, cur);
     renumber(w, cur.parent_id);
-  })();
+  });
 }
