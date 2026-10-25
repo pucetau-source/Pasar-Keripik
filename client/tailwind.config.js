@@ -18,7 +18,7 @@ export default {
         ok: { 100: v('ok-100'), 600: v('ok-600'), 700: v('ok-700') },
       },
       fontFamily: {
-        sans: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Display"', '"SF Pro Text"', 'Inter', '"Helvetica Neue"', 'Arial', 'sans-serif'],
+        sans: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Display"', '"SF Pro Text"', '"Inter Variable"', 'Inter', '"Helvetica Neue"', 'Arial', 'sans-serif'],
       },
       boxShadow: {
         glass: '0 1px 2px rgba(15,23,42,0.06), 0 10px 18px -8px rgba(15,23,42,0.22), inset 0 1px 0 rgba(255,255,255,0.9)',
