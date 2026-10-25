@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import Select from '../components/Select.jsx';
 import Icon from '../components/Icon.jsx';
 import { ConfirmDialog, Empty, ErrorBox, Field, Modal, PageHeader, Skel, TextInput, useAsync, useToast } from '../components/ui.jsx';
 import { api, ApiError, normFields } from '../lib/api.js';
@@ -36,10 +37,8 @@ function CategoryDialog({ tree, node, parentId, onClose, onSaved }) {
       <form id="catform" onSubmit={submit} className="space-y-4" noValidate>
         <Field label={t('cat.name')} error={err.name} required htmlFor="cn"><TextInput id="cn" value={name} error={err.name} onChange={(e) => setName(e.target.value)} maxLength={80} /></Field>
         <Field label={t('cat.parent')} hint={t('cat.parentHint')} error={err.parent_id} htmlFor="cp">
-          <select id="cp" className="input" value={parent} onChange={(e) => setParent(e.target.value)}>
-            <option value="">{t('cat.root')}</option>
-            {options.map((c) => <option key={c.id} value={c.id}>{'  '.repeat(c.depth)}{c.name}</option>)}
-          </select>
+          <Select id="cp" value={parent} onChange={(x) => setParent(String(x))}
+            options={[{ value: '', label: t('cat.root') }, ...options.map((c) => ({ value: c.id, label: c.name, depth: c.depth }))]} />
         </Field>
         {err._ && !err.name && !err.parent_id && <p className="field-error" role="alert">{err._}</p>}
       </form>

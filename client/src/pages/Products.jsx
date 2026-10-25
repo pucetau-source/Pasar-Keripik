@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import Select from '../components/Select.jsx';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import Icon from '../components/Icon.jsx';
 import { ConfirmDialog, Empty, ErrorBox, Pagination, Skel, useAsync, useToast } from '../components/ui.jsx';
@@ -173,26 +174,12 @@ export default function Products() {
           <Icon name="search" size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-mute pointer-events-none" />
           <input type="search" className="input pl-10" placeholder={t('list.search')} aria-label={t('list.search')} value={qInput} onChange={(e) => setQInput(e.target.value)} />
         </div>
-        <select className="input col-span-2 lg:col-span-1" aria-label={t('list.category')} value={category_id} onChange={(e) => set({ category_id: e.target.value })}>
-          <option value="">{t('list.allCategories')}</option>
-          {flat.map((c) => <option key={c.id} value={c.id}>{'  '.repeat(c.depth)}{c.name}</option>)}
-        </select>
-        <select className="input" aria-label={t('list.status')} value={status} onChange={(e) => set({ status: e.target.value })}>
-          <option value="">{t('list.allStatus')}</option>
-          <option value="active">{t('status.active')}</option>
-          <option value="inactive">{t('status.inactive')}</option>
-        </select>
-        <select className="input" aria-label={t('list.sort')} value={sort} onChange={(e) => set({ sort: e.target.value })}>
-          <option value="">{t('list.sortNew')}</option>
-          <option value="oldest">{t('list.sortOld')}</option>
-          <option value="updated">{t('list.sortUpdated')}</option>
-          <option value="name_asc">{t('list.sortName')}</option>
-          <option value="name_desc">{t('list.sortNameDesc')}</option>
-          <option value="price_asc">{t('list.sortPriceAsc')}</option>
-          <option value="price_desc">{t('list.sortPriceDesc')}</option>
-          <option value="stock_asc">{t('list.sortStock')}</option>
-          <option value="stock_desc">{t('list.sortStockDesc')}</option>
-        </select>
+        <Select className="col-span-2 lg:col-span-1" aria-label={t('list.category')} value={category_id} onChange={(x) => set({ category_id: String(x) })}
+          options={[{ value: '', label: t('list.allCategories') }, ...flat.map((c) => ({ value: c.id, label: c.name, depth: c.depth }))]} />
+        <Select aria-label={t('list.status')} value={status} onChange={(x) => set({ status: x })}
+          options={[{ value: '', label: t('list.allStatus') }, { value: 'active', label: t('status.active') }, { value: 'inactive', label: t('status.inactive') }]} />
+        <Select aria-label={t('list.sort')} value={sort} onChange={(x) => set({ sort: x })}
+          options={[{ value: '', label: t('list.sortNew') }, { value: 'oldest', label: t('list.sortOld') }, { value: 'updated', label: t('list.sortUpdated') }, { value: 'name_asc', label: t('list.sortName') }, { value: 'name_desc', label: t('list.sortNameDesc') }, { value: 'price_asc', label: t('list.sortPriceAsc') }, { value: 'price_desc', label: t('list.sortPriceDesc') }, { value: 'stock_asc', label: t('list.sortStock') }, { value: 'stock_desc', label: t('list.sortStockDesc') }]} />
       </div>
 
       {low && (

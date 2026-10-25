@@ -57,7 +57,7 @@ Shared: Inter Variable font (self-hosted `@fontsource-variable/inter`), small up
 - Nav item at rest: transparent, `text-ink-soft`, hover `--btn-hover`; active (`aria-current="page"`): `--nav-on-bg/-fg/-shadow`. `min-h-11`; visible focus ring on every interactive element (`--focus`). The settings gear in the user card uses `.nav-on` when active.
 - Segmented control `.seg`: recessed track, one selected thumb (`--seg-on-*`). Used for language and the Settings color theme.
 - Primary button `.btn-primary`: `bg-brand-600` (hover `brand-700`), white text; `.btn-soft` secondary; `.btn-danger`.
-- No glass on dropdown popovers, toasts, chart tooltips, table rows (never shadow each row).
+- Dropdown popovers (Select) use the glass-lg recipe; no glass on toasts, toasts, chart tooltips, table rows (never shadow each row).
 - Logo leaf fill/stroke use `--brand-600/700`.
 
 ## Don'ts

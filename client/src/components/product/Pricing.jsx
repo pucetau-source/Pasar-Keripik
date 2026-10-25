@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import Select from '../Select.jsx';
 import Icon from '../Icon.jsx';
 import { ConfirmDialog, Field, Money, NumInput, useToast } from '../ui.jsx';
 import { api } from '../../lib/api.js';
@@ -59,10 +60,8 @@ export function Wholesale({ form, setForm, err }) {
     <div className="space-y-3">
       {vs.length > 1 && (
         <Field label={t('ws.scope')} htmlFor="wsscope">
-          <select id="wsscope" className="input sm:max-w-sm" value={scope} onChange={(e) => setScope(e.target.value === 'all' ? 'all' : Number(e.target.value))}>
-            <option value="all">{t('ws.all')}</option>
-            {vs.map((v, i) => <option key={v.key} value={i}>{variantLabel(v, form.axes)}</option>)}
-          </select>
+          <Select id="wsscope" className="sm:max-w-sm" value={scope} onChange={(x) => setScope(x === 'all' ? 'all' : Number(x))}
+            options={[{ value: 'all', label: t('ws.all') }, ...vs.map((v, i) => ({ value: i, label: variantLabel(v, form.axes) }))]} />
           {scope === 'all' && !same && <p className="field-hint text-danger-700">{t('ws.differ')}</p>}
           <p className="field-hint">{pctMode ? t('ws.allExplain') : t('ws.oneExplain')}</p>
         </Field>
@@ -204,10 +203,8 @@ export function Discounts({ form, setForm, productId, onReload, err }) {
         <div className="grid sm:grid-cols-2 gap-3">
           {vs.length > 1 && (
             <Field label={t('disc.scope')} htmlFor="dsc" hint={allMode ? t('disc.allExplain') : undefined}>
-              <select id="dsc" className="input" value={scope} onChange={(x) => setScope(x.target.value)}>
-                <option value="all">{t('disc.allVariants')}</option>
-                {vs.map((v, i) => <option key={v.key} value={i}>{variantLabel(v, form.axes)}</option>)}
-              </select>
+              <Select id="dsc" value={scope} onChange={(x) => setScope(String(x))}
+                options={[{ value: 'all', label: t('disc.allVariants') }, ...vs.map((v, i) => ({ value: i, label: variantLabel(v, form.axes) }))]} />
             </Field>
           )}
           <Field label={t('disc.type')}>

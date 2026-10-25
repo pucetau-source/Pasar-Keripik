@@ -191,6 +191,23 @@ h1, h2, h3 { letter-spacing: -0.01em; }
   .glass { background: rgba(255, 255, 255, 0.97); }
 }
 
+/* Select (custom dropdown). Trigger reuses .input; popover is a portal'd glass panel. */
+.sel-trigger { display: flex; align-items: center; justify-content: space-between; gap: .5rem; text-align: left; cursor: pointer; transition: border-color .15s, box-shadow .15s, transform 160ms var(--ease-out); }
+.sel-trigger:active:not(:disabled) { transform: scale(0.98); }
+.sel-trigger:disabled { cursor: not-allowed; }
+.sel-trigger[aria-expanded="true"] { border-color: var(--focus); box-shadow: 0 0 0 3px var(--focus-ring); }
+.sel-chev { transition: transform 200ms var(--ease-out); }
+.sel-trigger[aria-expanded="true"] .sel-chev { transform: rotate(180deg); }
+.sel-pop { box-shadow: var(--shadow-glass); transform-origin: var(--sel-origin, 50% 0); animation: sel-in 160ms var(--ease-out); }
+.sel-pop[data-state="closed"] { animation: sel-out 100ms ease-out forwards; pointer-events: none; }
+.sel-item { min-height: 40px; }
+@media (min-width: 640px) { .sel-item { min-height: 34px; } }
+.sel-item[data-hi="true"] { background: var(--row-hover); }
+@media (hover: hover) and (pointer: fine) { .sel-item:hover { background: var(--row-hover); } }
+.sel-list { scrollbar-width: thin; scrollbar-color: rgb(var(--ink-mute) / .4) transparent; overscroll-behavior: contain; }
+@keyframes sel-in { from { opacity: 0; transform: scale(.95); } to { opacity: 1; transform: none; } }
+@keyframes sel-out { from { opacity: 1; transform: none; } to { opacity: 0; transform: scale(.97); } }
+
 .tabnum { font-variant-numeric: tabular-nums; }
 .scroll-thin::-webkit-scrollbar { height: 8px; width: 8px; }
 .scroll-thin::-webkit-scrollbar-thumb { background: rgb(var(--ink-mute) / .4); border-radius: 8px; }

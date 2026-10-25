@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import Select from './Select.jsx';
 import { Modal, Field, TextInput, Skel, useToast } from './ui.jsx';
 import Icon from './Icon.jsx';
 import { api, asList, ApiError } from '../lib/api.js';
@@ -70,9 +71,8 @@ export default function StockDialog({ product, onClose, onChanged }) {
           <form onSubmit={submit} className="space-y-3" noValidate>
             {variants.length > 1 && (
               <Field label={t('stock.variant')} htmlFor="sv">
-                <select id="sv" className="input" value={vid ?? ''} onChange={(e) => setVid(Number(e.target.value))}>
-                  {variants.map((v) => <option key={v.id} value={v.id}>{v.label || v.sku || '#' + v.id}</option>)}
-                </select>
+                <Select id="sv" value={vid ?? ''} onChange={(x) => setVid(Number(x))}
+                  options={variants.map((v) => ({ value: v.id, label: v.label || v.sku || '#' + v.id }))} />
               </Field>
             )}
             <div className="panel p-3 flex items-baseline justify-between">

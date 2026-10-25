@@ -1,7 +1,7 @@
 export const id = {
   'nav.products': 'Produk', 'nav.categories': 'Kategori', 'nav.units': 'Satuan', 'nav.language': 'Bahasa', 'nav.skip': 'Lewati ke konten',
   'nav.tz': 'Semua waktu dalam WIB (UTC+7)',
-  'common.actions': 'Aksi', 'common.cancel': 'Batal', 'common.close': 'Tutup', 'common.delete': 'Hapus', 'common.edit': 'Ubah',
+  'common.actions': 'Aksi', 'common.cancel': 'Batal', 'common.close': 'Tutup', 'select.search': 'Cari...', 'select.none': 'Tidak ada hasil', 'common.delete': 'Hapus', 'common.edit': 'Ubah',
   'common.error': 'Terjadi kesalahan.', 'common.next': 'Berikutnya', 'common.prev': 'Sebelumnya', 'common.retry': 'Coba lagi',
   'common.save': 'Simpan', 'common.wait': 'Mohon tunggu...', 'common.yes': 'Ya', 'common.no': 'Tidak',
   'status.active': 'Aktif', 'status.inactive': 'Nonaktif',

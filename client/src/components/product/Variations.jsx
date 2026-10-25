@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import Select from '../Select.jsx';
 import Icon from '../Icon.jsx';
 import { DecInput, Field, Money, NumInput, TextInput, Toggle } from '../ui.jsx';
 import { useI18n } from '../../lib/i18n.jsx';
@@ -48,10 +49,8 @@ function AxesEditor({ axes, setAxes, err }) {
 function UnitSelect({ value, onChange, units, id, error }) {
   const { t } = useI18n();
   return (
-    <select id={id} className="input !w-28 shrink-0 !rounded-l-none" aria-label={t('var.unit')} aria-invalid={error ? 'true' : undefined} value={value ?? ''} onChange={(e) => onChange(e.target.value === '' ? '' : Number(e.target.value))}>
-      <option value="">{t('var.unitPick')}</option>
-      {units.map((u) => <option key={u.id} value={u.id}>{u.symbol}</option>)}
-    </select>
+    <Select id={id} className="!w-28 shrink-0 !rounded-l-none" aria-label={t('var.unit')} aria-invalid={error ? 'true' : undefined} value={value ?? ''} onChange={(x) => onChange(x === '' ? '' : Number(x))}
+      options={[{ value: '', label: t('var.unitPick') }, ...units.map((u) => ({ value: u.id, label: u.symbol }))]} />
   );
 }
 

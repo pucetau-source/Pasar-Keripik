@@ -1,7 +1,7 @@
 export const en = {
   'nav.products': 'Products', 'nav.categories': 'Categories', 'nav.units': 'Units', 'nav.language': 'Language', 'nav.skip': 'Skip to content',
   'nav.tz': 'All times in WIB (UTC+7)',
-  'common.actions': 'Actions', 'common.cancel': 'Cancel', 'common.close': 'Close', 'common.delete': 'Delete', 'common.edit': 'Edit',
+  'common.actions': 'Actions', 'common.cancel': 'Cancel', 'common.close': 'Close', 'select.search': 'Search...', 'select.none': 'No matches', 'common.delete': 'Delete', 'common.edit': 'Edit',
   'common.error': 'Something went wrong.', 'common.next': 'Next', 'common.prev': 'Previous', 'common.retry': 'Try again',
   'common.save': 'Save', 'common.wait': 'Please wait...', 'common.yes': 'Yes', 'common.no': 'No',
   'status.active': 'Active', 'status.inactive': 'Inactive',
