@@ -165,7 +165,7 @@ export function SectionCard({ id, title, hint, children, aside }) {
       <div className="flex items-start justify-between gap-3 mb-3">
         <div>
           <h2 className="text-base font-bold">{title}</h2>
-          {hint && <p className="text-[13px] text-ink-soft mt-0.5">{hint}</p>}
+          {hint && <p className="text-sm text-ink-soft mt-0.5">{hint}</p>}
         </div>
         {aside}
       </div>

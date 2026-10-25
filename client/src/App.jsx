@@ -73,8 +73,8 @@ function Brand() {
     <Link to="/" className="flex items-center gap-3 min-w-0 rounded-xl" aria-label={shopName}>
       <Logo size={40} />
       <span className="min-w-0">
-        <span className="font-bold text-[17px] leading-tight block truncate">{shopName}</span>
-        {tagline && <span className="text-[11px] text-ink-mute block truncate leading-tight">{tagline}</span>}
+        <span className="font-bold text-lg leading-tight block truncate">{shopName}</span>
+        {tagline && <span className="text-xs text-ink-mute block truncate leading-tight">{tagline}</span>}
       </span>
     </Link>
   );
@@ -91,8 +91,8 @@ function UserCard() {
     <div className="flex items-center gap-2.5 pt-3 border-t border-[var(--line)]">
       <span className="w-9 h-9 rounded-full grid place-items-center text-ink-soft shrink-0 bg-mist-200"><Icon name="user" size={18} /></span>
       <span className="min-w-0 flex-1">
-        <span className="block text-[13px] font-semibold truncate capitalize">{me?.name || t('nav.user')}</span>
-        <span className="block text-[11px] text-ink-mute truncate">{shopName}</span>
+        <span className="block text-sm font-semibold truncate capitalize">{me?.name || t('nav.user')}</span>
+        <span className="block text-xs text-ink-mute truncate">{shopName}</span>
       </span>
       <Link to="/settings" className={'btn-icon shrink-0 ' + (on ? '!bg-blue-50 dark:!bg-blue-900/30 !text-blue-700 dark:!text-blue-400 shadow-glass-inset dark:shadow-glass-inset-dark' : '')} aria-label={t('nav.openSettings')} title={t('nav.settings')} aria-current={on ? 'page' : undefined}><Icon name="settings" size={18} /></Link>
     </div>
@@ -141,7 +141,7 @@ export default function App() {
 
         {/* Sidebar: slide-in drawer below lg, floating glass panel from lg */}
         <aside ref={asideRef} id="sidebar" aria-label="Menu"
-          className={'glass-blur shrink-0 flex flex-col gap-5 p-4 w-72 max-w-[85vw] lg:w-[248px] z-50 fixed inset-y-0 left-0 overflow-y-auto transition-[transform,visibility] duration-200 lg:rounded-2xl lg:sticky lg:top-4 lg:h-[calc(100vh-2rem)] lg:self-start lg:translate-x-0 lg:visible ' + (open ? 'translate-x-0 visible' : '-translate-x-full invisible')}>
+          className={'glass-blur shrink-0 flex flex-col gap-5 p-4 w-72 max-w-[85vw] lg:w-[248px] z-50 fixed inset-y-0 left-0 overflow-y-auto transition-[transform,visibility] duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] lg:rounded-2xl lg:sticky lg:top-4 lg:h-[calc(100vh-2rem)] lg:self-start lg:translate-x-0 lg:visible ' + (open ? 'translate-x-0 visible' : '-translate-x-full invisible')}>
           <div className="flex items-start justify-between gap-2">
             <Brand />
             <button type="button" className="btn-icon lg:hidden -mr-1.5 shrink-0" onClick={() => { setOpen(false); menuBtn.current?.focus(); }} aria-label={t('nav.closeMenu')}><Icon name="x" /></button>

@@ -76,7 +76,7 @@ export default function Settings() {
       <div className="grid gap-4 lg:grid-cols-2 items-start">
         <section className="glass rounded-2xl p-4" aria-labelledby="s-shop">
           <h2 id="s-shop" className="text-base font-bold">{t('set.shop')}</h2>
-          <p className="text-[13px] text-ink-soft mb-3">{t('set.shopHint')}</p>
+          <p className="text-sm text-ink-soft mb-3">{t('set.shopHint')}</p>
 
           <div className="flex items-center gap-3 mb-3.5">
             <span className="w-16 h-16 rounded-xl border border-[var(--line)] bg-sunken grid place-items-center shrink-0"><Logo size={48} /></span>
@@ -101,7 +101,7 @@ export default function Settings() {
 
         <section className="glass rounded-2xl p-4" aria-labelledby="s-pref">
           <h2 id="s-pref" className="text-base font-bold">{t('set.prefs')}</h2>
-          <p className="text-[13px] text-ink-soft mb-3">{t('set.prefsHint')}</p>
+          <p className="text-sm text-ink-soft mb-3">{t('set.prefsHint')}</p>
           <div className="grid gap-3.5">
             {f && (
               <Field label={t('set.threshold')} hint={t('set.thresholdHint')} error={err.low_stock_threshold} htmlFor="sl">

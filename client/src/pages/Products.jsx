@@ -57,7 +57,7 @@ function StatCard({ icon, tone, label, value, onClick, active }) {
     <>
       <span className={'hidden sm:grid w-9 h-9 rounded-full place-items-center shrink-0 ' + tone}><Icon name={icon} size={18} /></span>
       <span className="min-w-0 text-left">
-        <span className="block text-[11px] sm:text-xs text-ink-mute leading-tight">{label}</span>
+        <span className="block text-xs text-ink-mute leading-tight">{label}</span>
         <span className="block text-lg sm:text-xl font-bold leading-tight tabnum">{value == null ? '\u2013' : int(value)}</span>
       </span>
     </>
@@ -196,7 +196,7 @@ export default function Products() {
       </div>
 
       {low && (
-        <p className="text-[13px] text-ink-soft flex items-center gap-2">
+        <p className="text-sm text-ink-soft flex items-center gap-2">
           <span className="chip bg-danger-100 text-danger-700"><Icon name="alert" size={12} />{t('list.lowFilter', { n: int(threshold) })}</span>
           <button type="button" className="underline hover:text-ink" onClick={() => set({ low_stock: '' })}>{t('list.clear')}</button>
         </p>
@@ -254,8 +254,8 @@ export default function Products() {
                       <span className="min-w-0 flex-1">
                         <span className="font-semibold block break-words leading-snug">{p.name}</span>
                         <Breadcrumb path={pathById.get(p.category_id)} fallback={p.category_name} />
-                        <span className="block text-[13px]"><PriceRange p={p} /></span>
-                        <span className="flex items-center gap-2 text-[13px] mt-0.5 flex-wrap"><span className="text-ink-mute">{t('list.stockCol')}</span><StockBadge p={p} /><StatusChip s={p.status} /></span>
+                        <span className="block text-sm"><PriceRange p={p} /></span>
+                        <span className="flex items-center gap-2 text-sm mt-0.5 flex-wrap"><span className="text-ink-mute">{t('list.stockCol')}</span><StockBadge p={p} /><StatusChip s={p.status} /></span>
                       </span>
                     </Link>
                     <div className="flex flex-col shrink-0">{actions(p)}</div>
