@@ -36,7 +36,7 @@ export const en = {
   'sec.wholesale': 'Wholesale prices', 'sec.wholesaleHint': 'Lower prices for larger quantities.',
   'sec.discounts': 'Scheduled discounts', 'sec.discountsHint': 'Promo prices that apply during a set time range (WIB).',
 
-  'photos.add': 'Add photos', 'photos.cover': 'Cover', 'photos.photo': 'Photo', 'photos.left': 'Move left', 'photos.right': 'Move right',
+  'photos.add': 'Add photos', 'photos.file': 'Choose photo files', 'common.expand': 'Expand', 'common.collapse': 'Collapse', 'form.categoryLabel': 'Search categories', 'photos.cover': 'Cover', 'photos.photo': 'Photo', 'photos.left': 'Move left', 'photos.right': 'Move right',
   'photos.makeCover': 'Make cover', 'photos.hint': 'JPG, PNG or WebP. Up to 9 photos. Drag photos to reorder.',
   'photos.uploaded': 'Photos uploaded.', 'photos.removed': 'Photo removed.', 'photos.deleteTitle': 'Delete this photo?', 'photos.deleteMsg': 'The photo will be removed from the product.',
 
@@ -79,7 +79,7 @@ export const en = {
   'unit.emptyText': 'Add weight units so variants can use them.', 'unit.deleteTitle': 'Delete unit?', 'unit.deleteMsg': 'Unit "{name}" will be deleted. Units still in use cannot be deleted.',
 
   'audit.title': 'Change history', 'audit.more': 'Load more', 'audit.back': 'Back to product', 'audit.empty': 'No history yet', 'audit.emptyText': 'Every change to this product is recorded here.',
-  'nav.group.catalog': 'Catalog', 'nav.group.system': 'Settings', 'nav.menu': 'Menu', 'nav.closeMenu': 'Close menu',
+  'nav.group.catalog': 'Catalog', 'nav.group.system': 'Settings', 'nav.menu': 'Menu', 'nav.main': 'Main navigation', 'nav.closeMenu': 'Close menu',
   'nav.settings': 'Settings', 'nav.user': 'User', 'nav.openSettings': 'Open settings',
   'list.subtitle': 'Manage your product catalog and stock', 'list.duplicate': 'Duplicate', 'list.duplicated': 'Product duplicated. Review the copy before using it.', 'list.low': 'Low',
   'list.imageCol': 'Image', 'list.lowOnly': 'Low stock only', 'list.lowFilter': 'Low stock (min. {n})',

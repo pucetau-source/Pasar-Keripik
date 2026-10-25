@@ -36,7 +36,7 @@ export const id = {
   'sec.wholesale': 'Harga grosir', 'sec.wholesaleHint': 'Harga lebih murah untuk pembelian dalam jumlah banyak.',
   'sec.discounts': 'Diskon terjadwal', 'sec.discountsHint': 'Harga promo yang berlaku pada rentang waktu tertentu (WIB).',
 
-  'photos.add': 'Tambah foto', 'photos.cover': 'Sampul', 'photos.photo': 'Foto', 'photos.left': 'Geser ke kiri', 'photos.right': 'Geser ke kanan',
+  'photos.add': 'Tambah foto', 'photos.file': 'Pilih berkas foto', 'common.expand': 'Buka', 'common.collapse': 'Tutup cabang', 'form.categoryLabel': 'Cari kategori', 'photos.cover': 'Sampul', 'photos.photo': 'Foto', 'photos.left': 'Geser ke kiri', 'photos.right': 'Geser ke kanan',
   'photos.makeCover': 'Jadikan sampul', 'photos.hint': 'JPG, PNG, atau WebP. Maksimal 9 foto. Seret foto untuk mengurutkan.',
   'photos.uploaded': 'Foto diunggah.', 'photos.removed': 'Foto dihapus.', 'photos.deleteTitle': 'Hapus foto ini?', 'photos.deleteMsg': 'Foto akan dihapus dari produk.',
 
@@ -79,7 +79,7 @@ export const id = {
   'unit.emptyText': 'Tambahkan satuan berat, misalnya gram atau kilogram, agar bisa dipakai di varian.', 'unit.deleteTitle': 'Hapus satuan?', 'unit.deleteMsg': 'Satuan "{name}" akan dihapus. Satuan yang masih dipakai tidak bisa dihapus.',
 
   'audit.title': 'Riwayat perubahan', 'audit.more': 'Muat lebih banyak', 'audit.back': 'Kembali ke produk', 'audit.empty': 'Belum ada riwayat', 'audit.emptyText': 'Setiap perubahan pada produk akan tercatat di sini.',
-  'nav.group.catalog': 'Katalog', 'nav.group.system': 'Pengaturan', 'nav.menu': 'Menu', 'nav.closeMenu': 'Tutup menu',
+  'nav.group.catalog': 'Katalog', 'nav.group.system': 'Pengaturan', 'nav.menu': 'Menu', 'nav.main': 'Navigasi utama', 'nav.closeMenu': 'Tutup menu',
   'nav.settings': 'Pengaturan', 'nav.user': 'Pengguna', 'nav.openSettings': 'Buka pengaturan',
   'list.subtitle': 'Kelola katalog dan stok produk', 'list.duplicate': 'Gandakan', 'list.duplicated': 'Produk digandakan. Periksa salinannya sebelum dipakai.', 'list.low': 'Menipis',
   'list.imageCol': 'Gambar', 'list.lowOnly': 'Hanya stok menipis', 'list.lowFilter': 'Stok menipis (min. {n})',

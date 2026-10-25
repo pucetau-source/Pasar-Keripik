@@ -29,7 +29,7 @@ function AxesEditor({ axes, setAxes, err }) {
                   value={o.value} maxLength={40} placeholder={t('var.optionPh' + (i % 3))}
                   onChange={(e) => upd(i, { options: a.options.map((x) => (x.uid === o.uid ? { ...x, value: e.target.value } : x)) })}
                   onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); upd(i, { options: [...a.options, { uid: uid('o'), value: '' }] }); } }} />
-                <button type="button" className="btn-soft !rounded-l-none !px-2 border-l-0" aria-label={t('common.delete')} onClick={() => upd(i, { options: a.options.filter((x) => x.uid !== o.uid) })}><Icon name="x" size={16} /></button>
+                <button type="button" className="btn-soft !rounded-l-none !px-2 max-lg:!px-3 max-lg:min-w-11 border-l-0" aria-label={t('common.delete')} onClick={() => upd(i, { options: a.options.filter((x) => x.uid !== o.uid) })}><Icon name="x" size={16} /></button>
               </div>
             ))}
             <button type="button" className="btn-soft" onClick={() => upd(i, { options: [...a.options, { uid: uid('o'), value: '' }] })}><Icon name="plus" size={16} />{t('var.addOption')}</button>

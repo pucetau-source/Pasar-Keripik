@@ -17,7 +17,7 @@ Chosen in Settings (Tema warna / Color theme), stored in `localStorage` key `pk_
 
 | | Green (default) | Blue |
 |---|---|---|
-| Accent (`brand-*`) | emerald; 600 `#058c62`, 700 `#047857` | blue-600 `#2563eb`, 700 `#1d4ed8` |
+| Accent (`brand-*`) | emerald; 600 `#04825c`, 700 `#047352` | blue-600 `#2563eb`, 700 `#1d4ed8` |
 | Backdrop | pink/lavender top-left fading to light lime top-right and bottom-right | blue top-left, indigo top-right |
 | Glass | white 60-84%, white 1px edge, soft violet-tinted shadow | white 80-85%, slate 10% edge, slate shadow |
 | Panel radius (`rounded-2xl`) | 20px | 16px |
@@ -32,7 +32,7 @@ Shared: Inter Variable font (self-hosted `@fontsource-variable/inter`), small up
 ## Colors
 - Channel-triplet tokens (`ink`, `ink-soft`, `ink-mute`, `surface`, `sunken`, `mist-*`, `brand-50/100/500/600/700`) so Tailwind opacity modifiers work. Use `bg-brand-600`, `text-brand-700`, `border-brand-600`, never `blue-*`.
 - Semantic data colors (`danger`, `warn`, `ok`) are identical in both palettes: red alerts, stock-status green/yellow/red, status pills. Never recolor to match the brand.
-- Text must stay readable on the pastel backdrop: body ink on glass (>= 60% white) or `ink-mute` (`92 104 128`) at minimum; never put text directly on the bare gradient except the page lead line (ink-soft).
+- Text must stay readable on the pastel backdrop: body ink on glass (>= 60% white) or `ink-mute` (`84 96 120`) at minimum; never put text directly on the bare gradient except the page lead line (ink-soft).
 - One Material Rule: every floating surface uses the same glass recipe. No one-off shadows/opacities.
 
 ## Typography

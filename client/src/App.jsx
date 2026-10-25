@@ -55,7 +55,7 @@ function Clock() {
 function Brand() {
   const { shopName, tagline } = useSettings();
   return (
-    <Link to="/" className="flex items-center gap-3 min-w-0 rounded-xl" aria-label={shopName}>
+    <Link to="/" className="flex items-center gap-3 min-w-0 min-h-11 rounded-xl" aria-label={shopName}>
       <Logo size={40} />
       <span className="min-w-0">
         <span className="font-bold text-lg leading-tight block truncate">{shopName}</span>
@@ -125,13 +125,13 @@ export default function App() {
         {open && <div className="lg:hidden fixed inset-0 z-40 anim-fade" style={{ background: 'var(--backdrop)' }} onClick={() => setOpen(false)} aria-hidden="true" />}
 
         {/* Sidebar: slide-in drawer below lg, floating glass panel from lg */}
-        <aside ref={asideRef} id="sidebar" aria-label="Menu"
+        <aside ref={asideRef} id="sidebar" aria-label={t('nav.menu')}
           className={'glass-blur max-lg:!bg-white/90 shrink-0 flex flex-col gap-5 p-4 w-72 max-w-[85vw] lg:w-[248px] z-50 fixed inset-y-0 left-0 overflow-y-auto transition-[transform,visibility] duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] lg:rounded-2xl lg:sticky lg:top-4 lg:h-[calc(100vh-2rem)] lg:self-start lg:translate-x-0 lg:visible ' + (open ? 'translate-x-0 visible' : '-translate-x-full invisible')}>
           <div className="flex items-start justify-between gap-2">
             <Brand />
             <button type="button" className="btn-icon lg:hidden -mr-1.5 shrink-0" onClick={() => { setOpen(false); menuBtn.current?.focus(); }} aria-label={t('nav.closeMenu')}><Icon name="x" /></button>
           </div>
-          <nav className="flex flex-col gap-4" aria-label="Menu">
+          <nav className="flex flex-col gap-4" aria-label={t('nav.main')}>
             {GROUPS.map((g) => (
               <div key={g.key} className="flex flex-col gap-1">
                 <p className="px-3 text-xs font-semibold uppercase tracking-wider text-ink-mute">{t(g.key)}</p>

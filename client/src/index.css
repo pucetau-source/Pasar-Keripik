@@ -9,12 +9,12 @@
    Semantic data colors (danger / warn / ok) stay separate from the brand. */
 :root {
   color-scheme: light;
-  --ink: 20 27 51; --ink-soft: 66 78 102; --ink-mute: 92 104 128;
+  --ink: 20 27 51; --ink-soft: 66 78 102; --ink-mute: 84 96 120;
   --surface: 255 255 255; --sunken: 244 242 248; --chip: 232 228 238; --chip-2: 208 203 220;
-  --brand-50: 230 247 239; --brand-100: 204 241 224; --brand-500: 16 185 129; --brand-600: 5 140 98; --brand-700: 4 120 87;
+  --brand-50: 230 247 239; --brand-100: 204 241 224; --brand-500: 16 185 129; --brand-600: 4 130 92; --brand-700: 4 115 82;
   --danger-50: 254 242 242; --danger-100: 254 226 226; --danger-500: 239 68 68; --danger-600: 220 38 38; --danger-700: 185 28 28;
-  --warn-100: 254 243 214; --warn-400: 245 180 60; --warn-600: 161 98 7;
-  --ok-100: 220 252 231; --ok-600: 22 163 74; --ok-700: 21 128 61;
+  --warn-100: 254 243 214; --warn-400: 245 180 60; --warn-600: 146 88 5;
+  --ok-100: 220 252 231; --ok-600: 22 163 74; --ok-700: 18 118 56;
 
   --page: #f4eff7;
   --backdrop-img:
@@ -50,10 +50,10 @@
   /* nav item (active), segmented control */
   --nav-on-bg: rgba(255, 255, 255, 0.92); --nav-on-fg: rgb(4 120 87); --nav-on-shadow: 0 1px 4px rgba(60, 40, 90, 0.12);
   --seg-track: rgba(255, 255, 255, 0.7); --seg-track-shadow: inset 0 0 0 1px rgba(20, 27, 51, 0.06);
-  --seg-on-bg: rgb(5 140 98); --seg-on-fg: #ffffff; --seg-on-shadow: 0 4px 10px -4px rgba(5, 120, 87, 0.6);
+  --seg-on-bg: rgb(4 130 92); --seg-on-fg: #ffffff; --seg-on-shadow: 0 4px 10px -4px rgba(5, 120, 87, 0.6);
 }
 :root[data-palette="blue"] {
-  --ink: 15 23 42; --ink-soft: 71 85 105; --ink-mute: 100 116 139;
+  --ink: 15 23 42; --ink-soft: 71 85 105; --ink-mute: 88 102 126;
   --sunken: 241 245 249; --chip: 226 232 240; --chip-2: 203 213 225;
   --brand-50: 239 246 255; --brand-100: 219 234 254; --brand-500: 59 130 246; --brand-600: 37 99 235; --brand-700: 29 78 216;
 
@@ -127,7 +127,7 @@ h1, h2, h3 { letter-spacing: -0.01em; }
   .field-hint { @apply text-xs text-ink-mute mt-1; }
   .field-error { @apply text-xs font-medium text-danger-700 mt-1 flex items-start gap-1; }
   .input {
-    @apply w-full border px-3 py-1.5 text-ink placeholder:text-ink-mute/80 min-h-[38px];
+    @apply w-full border px-3 py-1.5 text-ink placeholder:text-ink-mute min-h-[38px];
     background: var(--input-bg); border-radius: var(--r-input);
     border-color: var(--input-border);
     transition: border-color .15s, box-shadow .15s;
@@ -178,10 +178,6 @@ h1, h2, h3 { letter-spacing: -0.01em; }
 .anim-pop { animation: pop 200ms var(--ease-out); }
 .anim-fade { animation: fade 150ms var(--ease-out); }
 
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
-}
-
 /* Fallbacks: no blur when unsupported or when the user asks for less transparency (panels get a more opaque fill) */
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .glass-blur, .glass-lg { background: rgba(255, 255, 255, 0.94); }
@@ -208,6 +204,39 @@ h1, h2, h3 { letter-spacing: -0.01em; }
 @keyframes sel-in { from { opacity: 0; transform: scale(.95); } to { opacity: 1; transform: none; } }
 @keyframes sel-out { from { opacity: 1; transform: none; } to { opacity: 0; transform: scale(.97); } }
 
+/* Touch targets: below lg every control gets a >= 44x44 hit area. Full-size buttons grow; dense/icon controls keep their
+   look and gain an invisible ::after hit area so rows and toolbars do not change layout. Desktop sizes are untouched. */
+@media (max-width: 1023.98px) {
+  .btn, .input { min-height: 44px; }
+  .btn-icon, .btn-ghost, .hit, .seg > button { position: relative; }
+  .btn-icon::after, .btn-ghost::after, .hit::after {
+    content: ""; position: absolute; left: calc(50% - 22px); top: calc(50% - 22px); width: 44px; height: 44px;
+  }
+  .btn-ghost::after { left: 0; width: 100%; }
+  .seg > button { min-width: 44px; }
+  .seg > button::after { content: ""; position: absolute; left: 0; right: 0; top: calc(50% - 22px); height: 44px; }
+  .sel-item { min-height: 44px; }
+}
+
 .tabnum { font-variant-numeric: tabular-nums; }
 .scroll-thin::-webkit-scrollbar { height: 8px; width: 8px; }
 .scroll-thin::-webkit-scrollbar-thumb { background: rgb(var(--ink-mute) / .4); border-radius: 8px; }
+
+/* Reduced motion: keep short opacity/color fades (they carry meaning), drop all movement and scaling. */
+@keyframes fade-rm { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fade-out-rm { from { opacity: 1; } to { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .anim-pop, .anim-fade { animation: fade-rm 120ms ease-out; }
+  .sel-pop { animation: fade-rm 120ms ease-out; }
+  .sel-pop[data-state="closed"] { animation: fade-out-rm 100ms ease-out forwards; }
+  .skel { animation: none; }
+  .btn:active:not(:disabled), .btn-icon:active:not(:disabled), .sel-trigger:active:not(:disabled) { transform: none; }
+  .btn, .btn-icon, .sel-trigger { transition-property: background-color, color, border-color, box-shadow, opacity; transition-duration: 120ms; }
+  .sel-chev { transition: none; }
+  /* Toggle thumb and chevron may not slide: state still reads from the track color */
+  input.peer ~ span::after { transition: none; }
+}
+@media (prefers-reduced-motion: reduce) and (max-width: 1023.98px) {
+  #sidebar { transform: none !important; transition: opacity 120ms ease-out, visibility 120ms; }
+  #sidebar.invisible { opacity: 0; }
+}

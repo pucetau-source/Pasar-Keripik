@@ -208,7 +208,7 @@ export function Discounts({ form, setForm, productId, onReload, err }) {
             </Field>
           )}
           <Field label={t('disc.type')}>
-            <div className="seg" role="group">
+            <div className="seg" role="group" aria-label={t('disc.type')}>
               {(allMode ? ['percent'] : ['price', 'percent']).map((m) => (
                 <button key={m} type="button" aria-pressed={mode === m} onClick={() => { setMode(m); setVal(''); }}
                   className="px-4">{m === 'price' ? t('disc.byPrice') : t('disc.byPercent')}</button>

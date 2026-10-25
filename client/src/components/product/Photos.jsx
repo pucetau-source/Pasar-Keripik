@@ -60,21 +60,21 @@ export default function Photos({ productId, images, onChange, error }) {
 
   return (
     <div>
-      <ul className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-3 gap-2.5">
+      <ul className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-2.5">
         {images.map((im, i) => (
           <li key={im.id || im.url} draggable onDragStart={() => setDrag(i)} onDragEnd={() => { setDrag(null); setOver(null); }}
             onDragOver={(e) => { e.preventDefault(); setOver(i); }} onDrop={(e) => { e.preventDefault(); if (drag != null) reorder(drag, i); setDrag(null); setOver(null); }}
             className={'relative group rounded-xl overflow-hidden bg-surface border-2 aspect-square cursor-grab active:cursor-grabbing ' + (over === i && drag != null ? 'border-brand-600' : 'border-[var(--line)]') + (drag === i ? ' opacity-40' : '')}>
             <img src={im.thumbUrl || im.url} alt={`${t('photos.photo')} ${i + 1}`} className="w-full h-full object-cover" draggable="false" width="160" height="160" />
             {i === 0 && <span className="absolute top-1.5 left-1.5 chip bg-brand-600 text-white shadow"><Icon name="star" size={12} />{t('photos.cover')}</span>}
-            <div className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-0.5 p-1 bg-gradient-to-t from-black/70 to-transparent text-white">
+            <div className="absolute inset-x-0 bottom-0 flex max-lg:flex-wrap items-center justify-between gap-0.5 p-1 bg-gradient-to-t from-black/70 to-transparent text-white">
               <span className="flex">
-                <button type="button" className="p-1.5 rounded hover:bg-white/25 disabled:opacity-30" disabled={i === 0} aria-label={t('photos.left')} onClick={() => reorder(i, i - 1)}><Icon name="chevL" size={16} /></button>
-                <button type="button" className="p-1.5 rounded hover:bg-white/25 disabled:opacity-30" disabled={i === images.length - 1} aria-label={t('photos.right')} onClick={() => reorder(i, i + 1)}><Icon name="chevR" size={16} /></button>
+                <button type="button" className="inline-flex items-center justify-center p-1.5 max-lg:min-w-11 max-lg:min-h-11 rounded hover:bg-white/25 disabled:opacity-30" disabled={i === 0} aria-label={`${t('photos.left')}: ${t('photos.photo')} ${i + 1}`} onClick={() => reorder(i, i - 1)}><Icon name="chevL" size={16} /></button>
+                <button type="button" className="inline-flex items-center justify-center p-1.5 max-lg:min-w-11 max-lg:min-h-11 rounded hover:bg-white/25 disabled:opacity-30" disabled={i === images.length - 1} aria-label={`${t('photos.right')}: ${t('photos.photo')} ${i + 1}`} onClick={() => reorder(i, i + 1)}><Icon name="chevR" size={16} /></button>
               </span>
-              <span className="flex">
-                {i !== 0 && <button type="button" className="p-1.5 rounded hover:bg-white/25" aria-label={t('photos.makeCover')} title={t('photos.makeCover')} onClick={() => reorder(i, 0)}><Icon name="star" size={16} /></button>}
-                <button type="button" className="p-1.5 rounded hover:bg-white/25" aria-label={t('common.delete')} onClick={() => (im.id ? setDel(im) : setDel(im))}><Icon name="trash" size={16} /></button>
+              <span className="flex max-lg:ml-auto">
+                {i !== 0 && <button type="button" className="inline-flex items-center justify-center p-1.5 max-lg:min-w-11 max-lg:min-h-11 rounded hover:bg-white/25" aria-label={`${t('photos.makeCover')}: ${t('photos.photo')} ${i + 1}`} title={t('photos.makeCover')} onClick={() => reorder(i, 0)}><Icon name="star" size={16} /></button>}
+                <button type="button" className="inline-flex items-center justify-center p-1.5 max-lg:min-w-11 max-lg:min-h-11 rounded hover:bg-white/25" aria-label={`${t('common.delete')}: ${t('photos.photo')} ${i + 1}`} onClick={() => setDel(im)}><Icon name="trash" size={16} /></button>
               </span>
             </div>
           </li>
@@ -91,7 +91,7 @@ export default function Photos({ productId, images, onChange, error }) {
           </li>
         )}
       </ul>
-      <input ref={input} type="file" accept="image/jpeg,image/png,image/webp" multiple hidden onChange={(e) => add(e.target.files)} />
+      <input ref={input} type="file" accept="image/jpeg,image/png,image/webp" multiple hidden aria-label={t('photos.file')} onChange={(e) => add(e.target.files)} />
       <p className="field-hint">{t('photos.hint')}</p>
       {error && <p className="field-error" role="alert"><Icon name="alert" size={14} className="mt-0.5" />{error}</p>}
       {del && <ConfirmDialog title={t('photos.deleteTitle')} message={t('photos.deleteMsg')} onConfirm={remove} onClose={() => setDel(null)} />}

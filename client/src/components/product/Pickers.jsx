@@ -6,14 +6,15 @@ import { findNode, flatten } from '../../lib/tree.js';
 
 /* ---------- Category tree picker ---------- */
 function TreeNode({ n, depth, value, onPick, open, toggle, forceOpen }) {
+  const { t } = useI18n();
   const kids = n.children || [];
   const isOpen = forceOpen || open.has(n.id);
   return (
     <li role="treeitem" aria-expanded={kids.length ? isOpen : undefined} aria-selected={value === n.id}>
       <div className={'flex items-center rounded-lg ' + (value === n.id ? 'bg-brand-100' : 'hover:bg-sunken')} style={{ paddingLeft: depth * 18 }}>
         {kids.length ? (
-          <button type="button" className="p-2 text-ink-soft" aria-label={isOpen ? 'collapse' : 'expand'} onClick={() => toggle(n.id)}><Icon name={isOpen ? 'chevD' : 'chevR'} size={16} /></button>
-        ) : <span className="w-8" />}
+          <button type="button" className="inline-flex items-center justify-center p-2 max-lg:min-w-11 max-lg:min-h-11 text-ink-soft" aria-label={(isOpen ? t('common.collapse') : t('common.expand')) + ': ' + n.name} aria-expanded={isOpen} onClick={() => toggle(n.id)}><Icon name={isOpen ? 'chevD' : 'chevR'} size={16} /></button>
+        ) : <span className="w-8 max-lg:w-11" />}
         <button type="button" className="flex-1 text-left py-2 pr-3 font-medium flex items-center gap-2" onClick={() => onPick(n)}>
           {n.name}{value === n.id && <Icon name="check" size={16} className="text-brand-700" />}
         </button>
@@ -71,7 +72,7 @@ export function CategoryPicker({ tree, value, onChange, error, id }) {
         <div className="absolute z-30 mt-1 w-full rounded-xl border border-[var(--line)] shadow-xl p-2 anim-pop" style={{ background: "var(--pop)" }}>
           <div className="relative mb-2">
             <Icon name="search" size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-mute" />
-            <input className="input pl-9" placeholder={t('form.categorySearch')} value={q} onChange={(e) => setQ(e.target.value)} autoFocus />
+            <input className="input pl-9" placeholder={t('form.categorySearch')} aria-label={t('form.categoryLabel')} value={q} onChange={(e) => setQ(e.target.value)} autoFocus />
           </div>
           <ul role="tree" className="max-h-64 overflow-y-auto scroll-thin">
             {shown.length === 0 && <li className="text-sm text-ink-soft p-3">{tree.length ? t('form.categoryNone') : t('form.categoryEmpty')}</li>}
@@ -116,10 +117,10 @@ export function TagsInput({ tags, onChange, id }) {
         {tags.map((x) => (
           <span key={x} className="chip bg-brand-100 text-ink !text-sm !py-1">
             {x}
-            <button type="button" className="p-0.5 rounded-full hover:bg-black/10" aria-label={`${t('common.delete')} ${x}`} onClick={() => onChange(tags.filter((y) => y !== x))}><Icon name="x" size={14} /></button>
+            <button type="button" className="hit p-0.5 rounded-full hover:bg-black/10" aria-label={`${t('common.delete')} ${x}`} onClick={() => onChange(tags.filter((y) => y !== x))}><Icon name="x" size={14} /></button>
           </span>
         ))}
-        <input id={id} list={lid} className="flex-1 min-w-[8rem] bg-transparent outline-none py-1" value={text} placeholder={tags.length ? '' : t('form.tagsPh')}
+        <input id={id} list={lid} className="flex-1 min-w-[8rem] bg-transparent outline-none py-1 max-lg:py-3" value={text} placeholder={tags.length ? '' : t('form.tagsPh')}
           onChange={(e) => setText(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === 'Enter' || e.key === ',') { e.preventDefault(); add(text); }

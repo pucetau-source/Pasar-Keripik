@@ -157,7 +157,7 @@ export default function ProductForm() {
   return (
     <form onSubmit={save} noValidate className="space-y-4">
       <div>
-        <Link to="/" className="btn-ghost -ml-2 !min-h-[28px]" onClick={(e) => { if (dirty && !window.confirm(t('form.leave'))) e.preventDefault(); }}><Icon name="chevL" size={18} />{t('nav.products')}</Link>
+        <Link to="/" className="btn-ghost -ml-2 lg:!min-h-[28px]" onClick={(e) => { if (dirty && !window.confirm(t('form.leave'))) e.preventDefault(); }}><Icon name="chevL" size={18} />{t('nav.products')}</Link>
         <div className="flex items-center justify-between gap-3 flex-wrap">
           {isNew ? <span /> : <p className="text-sm font-medium text-ink-soft">{t('form.titleEdit')}</p>}
           {!isNew && (

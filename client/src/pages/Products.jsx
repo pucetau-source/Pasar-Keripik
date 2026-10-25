@@ -185,7 +185,7 @@ export default function Products() {
       {low && (
         <p className="text-sm text-ink-soft flex items-center gap-2">
           <span className="chip bg-danger-100 text-danger-700"><Icon name="alert" size={12} />{t('list.lowFilter', { n: int(threshold) })}</span>
-          <button type="button" className="underline hover:text-ink" onClick={() => set({ low_stock: '' })}>{t('list.clear')}</button>
+          <button type="button" className="hit underline hover:text-ink" onClick={() => set({ low_stock: '' })}>{t('list.clear')}</button>
         </p>
       )}
 
@@ -223,7 +223,7 @@ export default function Products() {
                       </td>
                       <td className="td lg:whitespace-nowrap"><PriceRange p={p} /></td>
                       <td className="td text-right">
-                        <button type="button" className="rounded px-1.5 -mr-1.5 hover:bg-[var(--btn-hover)]" title={t('list.stock')} aria-label={t('list.stock') + ': ' + p.name} onClick={() => setStockFor(p)}><StockBadge p={p} /></button>
+                        <button type="button" className="hit rounded px-1.5 -mr-1.5 hover:bg-[var(--btn-hover)]" title={t('list.stock')} aria-label={t('list.stock') + ': ' + p.name} onClick={() => setStockFor(p)}><StockBadge p={p} /></button>
                       </td>
                       <td className="td hidden xl:table-cell"><StatusChip s={p.status} /></td>
                       <td className="td whitespace-nowrap text-right !pr-2">{actions(p)}</td>

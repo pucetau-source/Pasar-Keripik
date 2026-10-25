@@ -134,7 +134,7 @@ export default function Select({ value, onChange, options, placeholder, disabled
         aria-activedescendant={open && !showSearch && shown[hi] ? optId(hi) : undefined}
         className={'input sel-trigger ' + className}
         onClick={() => (open ? close() : openPop())} onKeyDown={onKey} {...rest}>
-        <span className={'truncate min-w-0 ' + (selected ? '' : 'text-ink-mute/80')}>{selected ? selected.label : placeholder || ''}</span>
+        <span className={'truncate min-w-0 ' + (selected ? '' : 'text-ink-mute')}>{selected ? selected.label : placeholder || ''}</span>
         <Icon name="chevD" size={16} className="sel-chev text-ink-mute" />
       </button>
       {mounted && pos && createPortal(

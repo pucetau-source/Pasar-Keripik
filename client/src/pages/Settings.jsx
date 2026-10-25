@@ -85,7 +85,7 @@ export default function Settings() {
               <p className="text-xs text-ink-mute mb-1.5">{S.logoUrl ? t('set.logoHint') : `${t('set.logoDefault')}. ${t('set.logoHint')}`}</p>
               <div className="flex flex-wrap gap-2">
                 <input ref={fileRef} type="file" accept="image/png,image/jpeg,image/webp" className="sr-only" onChange={onFile} aria-label={t('set.logoUpload')} tabIndex={-1} />
-                <button type="button" className="btn-soft !min-h-[34px]" disabled={logoBusy} onClick={() => fileRef.current?.click()}><Icon name="upload" size={16} />{S.logoUrl ? t('set.logoChange') : t('set.logoUpload')}</button>
+                <button type="button" className="btn-soft lg:!min-h-[34px]" disabled={logoBusy} onClick={() => fileRef.current?.click()}><Icon name="upload" size={16} />{S.logoUrl ? t('set.logoChange') : t('set.logoUpload')}</button>
                 {S.logoUrl && <button type="button" className="btn-ghost hover:!text-danger-700" disabled={logoBusy} onClick={removeLogo}><Icon name="trash" size={16} />{t('set.logoRemove')}</button>}
               </div>
             </div>
