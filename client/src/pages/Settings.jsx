@@ -7,13 +7,13 @@ import { useI18n, LANGS } from '../lib/i18n.jsx';
 import { useSettings } from '../lib/settings.jsx';
 import { useTheme } from '../lib/theme.jsx';
 
-const THEME_OPTS = [['system', 'set.themeSystem', 'monitor'], ['light', 'set.themeLight', 'sun'], ['dark', 'set.themeDark', 'moon']];
+const PALETTE_OPTS = [['green', 'set.paletteGreen', '#059669'], ['blue', 'set.paletteBlue', '#2563eb']];
 
 export default function Settings() {
   const { t } = useI18n();
   const toast = useToast();
   const S = useSettings();
-  const { pref, setPref } = useTheme();
+  const { palette, setPalette } = useTheme();
   const fileRef = useRef(null);
   const [f, setF] = useState(null);
   const [err, setErr] = useState({});
@@ -117,8 +117,8 @@ export default function Settings() {
             )}
             <Field label={t('set.theme')} hint={t('set.themeHint')}>
               <div className="seg" role="radiogroup" aria-label={t('set.theme')}>
-                {THEME_OPTS.map(([k, label, icon]) => (
-                  <button key={k} type="button" role="radio" aria-checked={pref === k} onClick={() => setPref(k)} className="inline-flex items-center gap-1.5"><Icon name={icon} size={16} />{t(label)}</button>
+                {PALETTE_OPTS.map(([k, label, dot]) => (
+                  <button key={k} type="button" role="radio" aria-checked={palette === k} onClick={() => setPalette(k)} className="inline-flex items-center gap-1.5"><span className="w-3 h-3 rounded-full border border-white/80 shadow-sm" style={{ background: dot }} aria-hidden="true" />{t(label)}</button>
                 ))}
               </div>
             </Field>

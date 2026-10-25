@@ -62,9 +62,9 @@ function StatCard({ icon, tone, label, value, onClick, active }) {
       </span>
     </>
   );
-  const cls = 'glass rounded-2xl px-3.5 py-2.5 flex items-center gap-2.5 sm:min-w-[150px] ' + (active ? '!border-blue-600 ring-1 ring-blue-600 ' : '');
+  const cls = 'glass rounded-2xl px-3.5 py-2.5 flex items-center gap-2.5 sm:min-w-[150px] ' + (active ? '!border-brand-600 ring-1 ring-brand-600 ' : '');
   return onClick
-    ? <button type="button" onClick={onClick} aria-pressed={!!active} className={cls + 'hover:shadow-glass-lg dark:hover:shadow-glass-lg-dark transition-shadow'}>{body}</button>
+    ? <button type="button" onClick={onClick} aria-pressed={!!active} className={cls + 'hover:shadow-glass-lg transition-shadow'}>{body}</button>
     : <div className={cls}>{body}</div>;
 }
 

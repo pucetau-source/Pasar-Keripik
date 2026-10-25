@@ -1,72 +1,67 @@
 # Design System: Pasar Keripik Admin
 
-Adopted from the owner's reference design doc (frosted-glass shell, blue/indigo brand, Apple-like). This replaces the earlier terracotta/leaf accent. The leaf stays only as the default, changeable logo.
+Frosted-glass shell, Apple-like, **light mode only** (there is no dark mode; the app always renders light). Two selectable color palettes share one set of components: **Green** (default) and **Blue** (the earlier blue/indigo look). The leaf stays as the default, changeable logo and follows the palette accent.
 
 ## North star
-"Frosted control glass." Dense daily-use business software made to feel considered without slowing anyone down. Sidebar, topbar and every page card are panes of frosted glass lifted off a soft blue/indigo backdrop with a directional shadow and a light-catching top edge. Selection reads as a physical state: the active nav item is recessed into the sidebar.
+"Frosted control glass." Dense daily-use business software made to feel considered without slowing anyone down. Sidebar, topbar and every page card are panes of frosted glass lifted off a soft gradient backdrop with a directional shadow and a light-catching top edge. Selection reads as a physical state.
 
-- Every chrome/content surface (sidebar, topbar, page cards, modals) = translucent + blurred glass, never flat opaque.
-- Two depth states only: **raised** (glass shadow + light top edge) and **recessed** (inset shadow: tracks and the active/selected item). No third tier.
-- Backdrop = two-color radial gradient (blue top-left, indigo top-right), in `vh` units, on the outermost shell div so it stays fixed behind scrolling content.
-- Exactly **one title per page**, in the shell topbar, with `.title-glow`. Page content never restates it; cards lead with a short description line instead.
-- Rejected: flat single-color cards with plain 1px border, heavy saturated tints, literal 3D/perspective transforms.
+- Every chrome/content surface (sidebar, topbar, page cards, modals) = translucent glass, never flat opaque. Blur only on the few large panels.
+- Two depth states: **raised** (glass shadow + light top edge) and **recessed** (inset: segmented-control track; blue palette also the active nav item).
+- Backdrop = gradient on the outermost shell div (`bg-backdrop`), fixed behind scrolling content, in `vh`/`vw` units.
+- Exactly **one title per page**, in the shell topbar, with `.title-glow`. Page content never restates it; cards lead with a short description line.
+- Owner constraint: **no dead space**. Cards size to their content.
+- Rejected: flat single-color cards with plain 1px border, heavy saturated tints, literal 3D transforms, any dark theme.
+
+## Palettes
+Chosen in Settings (Tema warna / Color theme), stored in `localStorage` key `pk_palette` (`green` | `blue`), applied as `<html data-palette="...">`. The inline no-flash script in `index.html` sets it before first paint; `lib/theme.jsx` (`useTheme()` -> `{ palette, setPalette }`) keeps it in sync. `:root` holds the Green values; `:root[data-palette="blue"]` overrides them. **All differences are CSS variables** in `src/index.css` consumed through Tailwind tokens; components never branch on the palette and never use hard-coded `blue-*`/`slate-*`/`gray-*` classes.
+
+| | Green (default) | Blue |
+|---|---|---|
+| Accent (`brand-*`) | emerald; 600 `#058c62`, 700 `#047857` | blue-600 `#2563eb`, 700 `#1d4ed8` |
+| Backdrop | pink/lavender top-left fading to light lime top-right and bottom-right | blue top-left, indigo top-right |
+| Glass | white 60-84%, white 1px edge, soft violet-tinted shadow | white 80-85%, slate 10% edge, slate shadow |
+| Panel radius (`rounded-2xl`) | 20px | 16px |
+| Buttons, chips, nav items, segmented control | fully round (pill) | 8px / 12px |
+| Inputs | 12px | 8px |
+| Active nav item | white pill, green text/icon | blue-50 recessed, blue text/icon |
+| Segmented/tab thumb (selected) | solid green pill, white text | white raised thumb, blue text |
+| Text ink | navy `20 27 51` | slate-900 |
+
+Shared: Inter Variable font (self-hosted `@fontsource-variable/inter`), small uppercase muted labels (`text-xs font-semibold uppercase tracking-wider text-ink-mute`), red for alerts/badges.
 
 ## Colors
-- Brand primary blue-600 `#2563eb` (blue-400 in dark): logo mark, primary buttons, active nav text/icon, focus rings, first backdrop hue.
-- Secondary indigo-600 `#4f46e5` (indigo-400 dark): second backdrop/title-glow hue only. Not a decorative accent.
-- Light page floor `#f9fafb` (gray-50); glass panels white at reduced opacity. Dark page floor `#0f172a` (slate-900); glass panels slate-800 at reduced opacity.
-- Functional colors stay as data semantics: red for alerts, stock-status green/yellow/red, status pills. Never recolor to match the brand and never add a look-alike decorative dot.
+- Channel-triplet tokens (`ink`, `ink-soft`, `ink-mute`, `surface`, `sunken`, `mist-*`, `brand-50/100/500/600/700`) so Tailwind opacity modifiers work. Use `bg-brand-600`, `text-brand-700`, `border-brand-600`, never `blue-*`.
+- Semantic data colors (`danger`, `warn`, `ok`) are identical in both palettes: red alerts, stock-status green/yellow/red, status pills. Never recolor to match the brand.
+- Text must stay readable on the pastel backdrop: body ink on glass (>= 60% white) or `ink-mute` (`92 104 128`) at minimum; never put text directly on the bare gradient except the page lead line (ink-soft).
 - One Material Rule: every floating surface uses the same glass recipe. No one-off shadows/opacities.
 
 ## Typography
-Font: `-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", Inter, "Helvetica Neue", Arial, sans-serif` (no external font requests; Inter only if self-hosted).
-- Page title: `text-xl font-bold` (20/700) + `.title-glow`, once per page in the topbar (desktop >= 1024px) or mobile header (< 1024px).
-- Card lead text: `text-sm font-medium`, muted. Body: `text-sm` (14px). Micro-label: `text-xs font-semibold uppercase tracking-wider`, slate-400/500 (sidebar group headings).
-```css
-.title-glow { text-shadow: 0 0 16px rgba(37,99,235,0.28), 0 0 30px rgba(79,70,229,0.16); }
-.dark .title-glow { text-shadow: 0 0 16px rgba(59,130,246,0.4), 0 0 30px rgba(99,102,241,0.22); }
-```
-Title-glow only on the shell page title `<h1>`. The shell derives the title from the nav data (route -> title lookup). Routes not in the nav (e.g. product form, audit) show a dynamic record-specific title (product name) instead of nothing, never zero titles.
+- Font: `"Inter Variable", Inter, system-ui fallbacks`.
+- Page title: `text-xl font-bold` + `.title-glow` (`--title-glow`: soft white halo in Green, blue/indigo glow in Blue), once per page in the topbar (>= 1024px) or mobile header.
+- Card lead text `text-sm font-medium` ink-soft; body `text-sm`; micro-label as above (sidebar group headings, table heads).
 
 ## Layout
-- Desktop (>= 1024px): shell padding and gap 16px (`lg:p-4 lg:gap-4`); sidebar and main column are separate floating panels on the backdrop; sidebar `lg:rounded-2xl`.
-- Below lg: sidebar becomes a full-height edge-anchored slide-in drawer (unrounded); topbar collapses to a compact mobile header with the page title. Keep the phone bottom nav only if it does not duplicate the drawer; prefer the drawer.
-- Page content: stack cards with `gap-4`/`gap-5` (stat cards, filter bar card, table card).
-- Owner constraint (overrides the reference): **no dead space**. Cards size to their content; do not stretch a short page's card to fill the viewport.
-- Sidebar groups with micro-labels (e.g. KATALOG: Produk, Kategori, Satuan; PENGATURAN: Pengaturan), user card at the bottom with gear.
+- Desktop (>= 1024px): shell padding and gap 16px; sidebar and main column are separate floating panels; sidebar `lg:rounded-2xl`.
+- Below lg: sidebar becomes a full-height slide-in drawer (unrounded, 90% white so it stays readable over the scrim); topbar collapses to a compact mobile header.
+- Stack page cards with `gap-4`/`gap-5`.
+- Sidebar groups with micro-labels (KATALOG: Produk, Kategori, Satuan; PENGATURAN: Pengaturan), user card at the bottom with gear.
 
-## Elevation (tailwind boxShadow tokens)
-```js
-glass:              '0 1px 2px rgba(15,23,42,0.06), 0 10px 18px -8px rgba(15,23,42,0.22), inset 0 1px 0 rgba(255,255,255,0.9)',
-'glass-dark':       '0 1px 3px rgba(0,0,0,0.45), 0 12px 22px -8px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.08)',
-'glass-lg':         '0 2px 4px rgba(15,23,42,0.08), 0 16px 28px -10px rgba(15,23,42,0.28), inset 0 1px 0 rgba(255,255,255,0.95)',
-'glass-lg-dark':    '0 2px 5px rgba(0,0,0,0.5), 0 18px 32px -10px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.11)',
-'glass-inset':      'inset 0 1px 4px rgba(15,23,42,0.18), inset 0 -1px 0 rgba(255,255,255,0.5)',
-'glass-inset-dark': 'inset 0 1px 4px rgba(0,0,0,0.5), inset 0 -1px 0 rgba(255,255,255,0.05)',
-```
-- `shadow-glass`: default for sidebar, topbar, page cards (stat cards, filter bar, table wrapper, settings sections).
-- `shadow-glass-lg`: modals/dialogs and clickable cards on hover.
-- `shadow-glass-inset`: active nav item, segmented-control track.
-- Keep the narrow blur values; do not widen.
-Backdrop tokens:
-```js
-'glow-light': "radial-gradient(120vh circle at 0% 0%, rgba(37,99,235,0.22), transparent 72%), radial-gradient(120vh circle at 100% 0%, rgba(79,70,229,0.18), transparent 72%)",
-'glow-dark':  "radial-gradient(120vh circle at 0% 0%, rgba(37,99,235,0.34), transparent 72%), radial-gradient(120vh circle at 100% 0%, rgba(79,70,229,0.20), transparent 72%)",
-```
-Applied on the outermost shell div (`bg-glow-light dark:bg-glow-dark`). Glass panel recipe: `bg-white/75..80` (light), `bg-slate-800/55..60` (dark), `backdrop-blur-xl backdrop-saturate-150`, `border border-slate-900/10` / `dark:border-white/10`, plus the shadow token. Opacity never below ~70% light / ~50% dark.
-
-## Shapes
-Three radii only: 8px (`rounded-lg`) small controls; 12px (`rounded-xl`) nav items, logo mark, segmented track; 16px (`rounded-2xl`) panels, modals. No sharp corners on floating surfaces.
+## Elevation and glass (variables in `index.css`, Tailwind tokens in `tailwind.config.js`)
+- Tailwind `boxShadow`: `glass` -> `var(--shadow-glass)`, `glass-lg` -> `var(--shadow-glass-lg)`, `glass-inset` -> `var(--shadow-inset)`. There are no `-dark` variants.
+- `backgroundImage.backdrop` -> `var(--backdrop-img)`; `borderRadius.2xl` -> `var(--r-panel)`.
+- Recipes (component classes): `.glass` (no blur, many small cards), `.glass-blur` (sidebar, topbar), `.glass-lg` (modals; blur). Backgrounds `--glass`, `--glass-blur`, `--glass-lg`; edge `--glass-border`.
+- Other palette variables: `--r-btn --r-input --r-nav --r-seg`, `--nav-on-*`, `--seg-*`, `--shadow-btn`, `--title-glow`, `--focus`, `--focus-ring`, `--row-hover`.
+- `shadow-glass`: sidebar, topbar, page cards; `shadow-glass-lg`: modals and clickable cards on hover.
 
 ## Components
-- Nav item at rest: transparent, `text-gray-600 dark:text-slate-300`, hover `bg-gray-100 dark:bg-slate-700` (deliberately flat). Active: `bg-blue-50 dark:bg-blue-900/30`, `text-blue-700 dark:text-blue-400`, `shadow-glass-inset dark:shadow-glass-inset-dark`. `min-h-11`; visible focus ring on every interactive element: `focus-visible:ring-2 ring-blue-500 dark:ring-blue-400 ring-offset-2`.
-- Segmented control (theme/language switcher): recessed track `bg-gray-100 shadow-glass-inset rounded-xl`; one raised thumb `bg-white/95 dark:bg-slate-600 shadow-glass rounded-lg`.
-- Primary button: blue-600 solid (hover blue-700), `rounded-lg`, white text; secondary: glass/outline.
-- No glass on: dropdown popovers, toasts, chart tooltips (plain shadow-lg), table rows/list rows (never shadow each row), data-semantic colors.
-- Every new glass/gradient/custom-token utility needs an explicit `dark:` variant.
+- Nav item at rest: transparent, `text-ink-soft`, hover `--btn-hover`; active (`aria-current="page"`): `--nav-on-bg/-fg/-shadow`. `min-h-11`; visible focus ring on every interactive element (`--focus`). The settings gear in the user card uses `.nav-on` when active.
+- Segmented control `.seg`: recessed track, one selected thumb (`--seg-on-*`). Used for language and the Settings color theme.
+- Primary button `.btn-primary`: `bg-brand-600` (hover `brand-700`), white text; `.btn-soft` secondary; `.btn-danger`.
+- No glass on dropdown popovers, toasts, chart tooltips, table rows (never shadow each row).
+- Logo leaf fill/stroke use `--brand-600/700`.
 
 ## Don'ts
-No flat opaque cards, no third depth tier, no teal/amber/terracotta or accents outside blue/indigo, no title-glow elsewhere, no `overflow-hidden` on the floating content card (it clips long pages), no hand-written one-off box-shadows.
+No dark mode or `dark:` variants, no flat opaque cards, no hard-coded brand colors in components, no one-off shadows, no title-glow outside the page title, no `overflow-hidden` on the floating content card (it clips long pages).
 
 ## Performance guardrails (owner priority #1)
-Limit `backdrop-filter` to the few large panels (sidebar, topbar, page cards, modals), not per-row/per-chip. Provide solid translucent fallbacks under `@supports not (backdrop-filter: blur(1px))` and `prefers-reduced-transparency`. Verify scrolling stays smooth with 20 rows/page and first-load JS stays < 150 KB gzip.
+Limit `backdrop-filter` to the few large panels (sidebar, topbar, modals), not per-row/per-chip. Solid translucent fallbacks under `@supports not (backdrop-filter: blur(1px))` and `prefers-reduced-transparency`. First-load JS stays < 150 KB gzip (currently about 102 KB).

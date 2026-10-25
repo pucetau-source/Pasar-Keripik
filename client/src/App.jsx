@@ -4,7 +4,6 @@ import Icon from './components/Icon.jsx';
 import Logo from './components/Logo.jsx';
 import { Skel } from './components/ui.jsx';
 import { useI18n, LANGS } from './lib/i18n.jsx';
-import { useTheme } from './lib/theme.jsx';
 import { useSettings } from './lib/settings.jsx';
 import { fmtNow, useNow } from './lib/clock.js';
 import { api } from './lib/api.js';
@@ -30,20 +29,6 @@ const ITEMS = GROUPS.flatMap((g) => g.items);
 
 // Exact match for '/', prefix match for the rest (and /products/* belongs to Products)
 const isOn = (n, path) => (n.to === '/' ? path === '/' || path === n.also || path.startsWith(n.also + '/') : path === n.to || path.startsWith(n.to + '/'));
-
-function ThemeSwitch() {
-  const { dark, setPref } = useTheme();
-  const { t } = useI18n();
-  return (
-    <div className="seg seg-sm" role="radiogroup" aria-label={t('nav.theme')}>
-      {[['light', 'sun', t('set.themeLight')], ['dark', 'moon', t('set.themeDark')]].map(([k, icon, label]) => (
-        <button key={k} type="button" role="radio" aria-checked={(k === 'dark') === dark} aria-label={label} title={label} onClick={() => setPref(k)}>
-          <Icon name={icon} size={16} className="mx-auto" />
-        </button>
-      ))}
-    </div>
-  );
-}
 
 function LangSwitch() {
   const { lang, setLang, t } = useI18n();
@@ -94,7 +79,7 @@ function UserCard() {
         <span className="block text-sm font-semibold truncate capitalize">{me?.name || t('nav.user')}</span>
         <span className="block text-xs text-ink-mute truncate">{shopName}</span>
       </span>
-      <Link to="/settings" className={'btn-icon shrink-0 ' + (on ? '!bg-blue-50 dark:!bg-blue-900/30 !text-blue-700 dark:!text-blue-400 shadow-glass-inset dark:shadow-glass-inset-dark' : '')} aria-label={t('nav.openSettings')} title={t('nav.settings')} aria-current={on ? 'page' : undefined}><Icon name="settings" size={18} /></Link>
+      <Link to="/settings" className={'btn-icon shrink-0 ' + (on ? 'nav-on' : '')} aria-label={t('nav.openSettings')} title={t('nav.settings')} aria-current={on ? 'page' : undefined}><Icon name="settings" size={18} /></Link>
     </div>
   );
 }
@@ -134,14 +119,14 @@ export default function App() {
     <TitleCtx.Provider value={setTitle}>
       <div className="min-h-screen lg:flex lg:gap-4 lg:p-4 relative">
         {/* Backdrop glow: fixed behind the scrolling content */}
-        <div className="fixed inset-0 -z-10 pointer-events-none bg-glow-light dark:bg-glow-dark" aria-hidden="true" />
+        <div className="fixed inset-0 -z-10 pointer-events-none bg-backdrop" aria-hidden="true" />
         <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:bg-surface focus:px-3 focus:py-2 focus:rounded-lg">{t('nav.skip')}</a>
 
         {open && <div className="lg:hidden fixed inset-0 z-40 anim-fade" style={{ background: 'var(--backdrop)' }} onClick={() => setOpen(false)} aria-hidden="true" />}
 
         {/* Sidebar: slide-in drawer below lg, floating glass panel from lg */}
         <aside ref={asideRef} id="sidebar" aria-label="Menu"
-          className={'glass-blur shrink-0 flex flex-col gap-5 p-4 w-72 max-w-[85vw] lg:w-[248px] z-50 fixed inset-y-0 left-0 overflow-y-auto transition-[transform,visibility] duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] lg:rounded-2xl lg:sticky lg:top-4 lg:h-[calc(100vh-2rem)] lg:self-start lg:translate-x-0 lg:visible ' + (open ? 'translate-x-0 visible' : '-translate-x-full invisible')}>
+          className={'glass-blur max-lg:!bg-white/90 shrink-0 flex flex-col gap-5 p-4 w-72 max-w-[85vw] lg:w-[248px] z-50 fixed inset-y-0 left-0 overflow-y-auto transition-[transform,visibility] duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] lg:rounded-2xl lg:sticky lg:top-4 lg:h-[calc(100vh-2rem)] lg:self-start lg:translate-x-0 lg:visible ' + (open ? 'translate-x-0 visible' : '-translate-x-full invisible')}>
           <div className="flex items-start justify-between gap-2">
             <Brand />
             <button type="button" className="btn-icon lg:hidden -mr-1.5 shrink-0" onClick={() => { setOpen(false); menuBtn.current?.focus(); }} aria-label={t('nav.closeMenu')}><Icon name="x" /></button>
@@ -149,7 +134,7 @@ export default function App() {
           <nav className="flex flex-col gap-4" aria-label="Menu">
             {GROUPS.map((g) => (
               <div key={g.key} className="flex flex-col gap-1">
-                <p className="px-3 text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">{t(g.key)}</p>
+                <p className="px-3 text-xs font-semibold uppercase tracking-wider text-ink-mute">{t(g.key)}</p>
                 {g.items.map((n) => (
                   <Link key={n.to} to={n.to} aria-current={isOn(n, loc.pathname) ? 'page' : undefined} className="nav-item">
                     <Icon name={n.icon} /><span>{t(n.key)}</span>
@@ -159,7 +144,7 @@ export default function App() {
             ))}
           </nav>
           <div className="md:hidden flex items-center justify-between gap-2">
-            <ThemeSwitch /><LangSwitch />
+            <LangSwitch />
           </div>
           <div className="mt-auto"><UserCard /></div>
         </aside>
@@ -171,7 +156,7 @@ export default function App() {
             <h1 className="title-glow text-xl font-bold leading-tight truncate min-w-0 flex-1">{title}</h1>
             <div className="flex items-center gap-2 lg:gap-3 shrink-0">
               <Clock />
-              <span className="hidden md:flex items-center gap-2"><ThemeSwitch /><LangSwitch /></span>
+              <span className="hidden md:flex items-center gap-2"><LangSwitch /></span>
             </div>
           </header>
 

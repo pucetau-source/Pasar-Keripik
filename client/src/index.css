@@ -2,21 +2,66 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Palette: slate neutrals + blue (primary #2563eb) / indigo (secondary #4f46e5) brand.
-   Semantic data colors (danger / warn / ok) stay separate from the brand.
-   Channel triplets so Tailwind opacity modifiers keep working. */
+/* Light mode only. Two palettes, picked by <html data-palette="green|blue"> (green = default, set by the
+   inline script in index.html and lib/theme.jsx). Every color/radius/shadow that differs between the palettes
+   is a variable here; components never branch on the palette.
+   Colors are channel triplets so Tailwind opacity modifiers keep working.
+   Semantic data colors (danger / warn / ok) stay separate from the brand. */
 :root {
-  --ink: 15 23 42; --ink-soft: 71 85 105; --ink-mute: 100 116 139;
-  --surface: 255 255 255; --sunken: 241 245 249; --chip: 226 232 240; --chip-2: 203 213 225;
-  --brand-50: 239 246 255; --brand-100: 219 234 254; --brand-500: 59 130 246; --brand-600: 37 99 235; --brand-700: 29 78 216;
+  color-scheme: light;
+  --ink: 20 27 51; --ink-soft: 66 78 102; --ink-mute: 92 104 128;
+  --surface: 255 255 255; --sunken: 244 242 248; --chip: 232 228 238; --chip-2: 208 203 220;
+  --brand-50: 230 247 239; --brand-100: 204 241 224; --brand-500: 16 185 129; --brand-600: 5 140 98; --brand-700: 4 120 87;
   --danger-50: 254 242 242; --danger-100: 254 226 226; --danger-500: 239 68 68; --danger-600: 220 38 38; --danger-700: 185 28 28;
   --warn-100: 254 243 214; --warn-400: 245 180 60; --warn-600: 161 98 7;
   --ok-100: 220 252 231; --ok-600: 22 163 74; --ok-700: 21 128 61;
 
-  --page: #f9fafb;
-  --card-solid: #ffffff;
-  --panel: #f1f5f9;
+  --page: #f4eff7;
+  --backdrop-img:
+    radial-gradient(95vw 95vh at 0% 0%, rgba(222, 165, 222, 0.8), transparent 72%),
+    radial-gradient(85vw 85vh at 100% 0%, rgba(205, 240, 150, 0.85), transparent 72%),
+    radial-gradient(85vw 70vh at 100% 100%, rgba(205, 240, 150, 0.7), transparent 72%);
+  --panel: rgba(255, 255, 255, 0.55);
   --pop: #ffffff;
+  --line: rgba(20, 27, 51, 0.1);
+  --input-bg: rgba(255, 255, 255, 0.85);
+  --input-border: rgba(92, 104, 128, 0.4);
+  --input-border-hover: rgba(66, 78, 102, 0.65);
+  --focus: #059669;
+  --focus-ring: rgba(5, 150, 105, 0.25);
+  --backdrop: rgba(20, 27, 51, 0.4);
+  --row-hover: rgba(5, 150, 105, 0.07);
+  --btn-hover: rgba(20, 27, 51, 0.06);
+
+  /* glass recipe */
+  --glass: rgba(255, 255, 255, 0.66);
+  --glass-blur: rgba(255, 255, 255, 0.6);
+  --glass-lg: rgba(255, 255, 255, 0.84);
+  --glass-border: rgba(255, 255, 255, 0.75);
+  --shadow-glass: 0 1px 2px rgba(60, 40, 90, 0.05), 0 10px 24px -12px rgba(60, 40, 90, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  --shadow-glass-lg: 0 2px 4px rgba(60, 40, 90, 0.07), 0 18px 34px -12px rgba(60, 40, 90, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.95);
+  --shadow-inset: inset 0 1px 3px rgba(60, 40, 90, 0.1);
+  --shadow-btn: 0 6px 14px -8px rgba(5, 120, 87, 0.7);
+  --title-glow: 0 0 18px rgba(255, 255, 255, 0.8);
+
+  /* shapes: cards 20px, controls fully round */
+  --r-panel: 20px; --r-btn: 9999px; --r-input: 12px; --r-nav: 9999px; --r-seg: 9999px;
+
+  /* nav item (active), segmented control */
+  --nav-on-bg: rgba(255, 255, 255, 0.92); --nav-on-fg: rgb(4 120 87); --nav-on-shadow: 0 1px 4px rgba(60, 40, 90, 0.12);
+  --seg-track: rgba(255, 255, 255, 0.7); --seg-track-shadow: inset 0 0 0 1px rgba(20, 27, 51, 0.06);
+  --seg-on-bg: rgb(5 140 98); --seg-on-fg: #ffffff; --seg-on-shadow: 0 4px 10px -4px rgba(5, 120, 87, 0.6);
+}
+:root[data-palette="blue"] {
+  --ink: 15 23 42; --ink-soft: 71 85 105; --ink-mute: 100 116 139;
+  --sunken: 241 245 249; --chip: 226 232 240; --chip-2: 203 213 225;
+  --brand-50: 239 246 255; --brand-100: 219 234 254; --brand-500: 59 130 246; --brand-600: 37 99 235; --brand-700: 29 78 216;
+
+  --page: #f9fafb;
+  --backdrop-img:
+    radial-gradient(120vh circle at 0% 0%, rgba(37, 99, 235, 0.22), transparent 72%),
+    radial-gradient(120vh circle at 100% 0%, rgba(79, 70, 229, 0.18), transparent 72%);
+  --panel: #f1f5f9;
   --line: rgba(15, 23, 42, 0.1);
   --input-bg: rgba(255, 255, 255, 0.92);
   --input-border: rgba(100, 116, 139, 0.45);
@@ -26,35 +71,29 @@
   --backdrop: rgba(15, 23, 42, 0.4);
   --row-hover: rgba(37, 99, 235, 0.05);
   --btn-hover: rgba(15, 23, 42, 0.06);
-}
-[data-theme="dark"] {
-  --ink: 241 245 249; --ink-soft: 203 213 225; --ink-mute: 148 163 184;
-  --surface: 30 41 59; --sunken: 22 32 51; --chip: 51 65 85; --chip-2: 71 85 105;
-  --brand-50: 23 37 84; --brand-100: 30 58 138; --brand-500: 59 130 246; --brand-600: 96 165 250; --brand-700: 96 165 250;
-  --danger-50: 69 26 30; --danger-100: 88 28 33; --danger-500: 248 113 113; --danger-600: 248 113 113; --danger-700: 252 165 165;
-  --warn-100: 63 50 33; --warn-400: 245 180 60; --warn-600: 245 190 100;
-  --ok-100: 20 62 44; --ok-600: 34 160 80; --ok-700: 134 239 172;
 
-  --page: #0f172a;
-  --card-solid: #1e293b;
-  --panel: #182236;
-  --pop: #1e293b;
-  --line: rgba(255, 255, 255, 0.1);
-  --input-bg: rgba(15, 23, 42, 0.7);
-  --input-border: rgba(148, 163, 184, 0.35);
-  --input-border-hover: rgba(148, 163, 184, 0.6);
-  --focus: #60a5fa;
-  --focus-ring: rgba(96, 165, 250, 0.3);
-  --backdrop: rgba(2, 6, 23, 0.6);
-  --row-hover: rgba(96, 165, 250, 0.08);
-  --btn-hover: rgba(241, 245, 249, 0.08);
+  --glass: rgba(255, 255, 255, 0.85);
+  --glass-blur: rgba(255, 255, 255, 0.8);
+  --glass-lg: rgba(255, 255, 255, 0.85);
+  --glass-border: rgba(15, 23, 42, 0.1);
+  --shadow-glass: 0 1px 2px rgba(15, 23, 42, 0.06), 0 10px 18px -8px rgba(15, 23, 42, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  --shadow-glass-lg: 0 2px 4px rgba(15, 23, 42, 0.08), 0 16px 28px -10px rgba(15, 23, 42, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.95);
+  --shadow-inset: inset 0 1px 4px rgba(15, 23, 42, 0.18), inset 0 -1px 0 rgba(255, 255, 255, 0.5);
+  --shadow-btn: 0 6px 14px -8px rgba(37, 99, 235, 0.8);
+  --title-glow: 0 0 16px rgba(37, 99, 235, 0.28), 0 0 30px rgba(79, 70, 229, 0.16);
+
+  --r-panel: 16px; --r-btn: 8px; --r-input: 8px; --r-nav: 12px; --r-seg: 12px;
+
+  --nav-on-bg: rgb(239 246 255); --nav-on-fg: rgb(29 78 216); --nav-on-shadow: var(--shadow-inset);
+  --seg-track: #f1f5f9; --seg-track-shadow: var(--shadow-inset);
+  --seg-on-bg: rgba(255, 255, 255, 0.95); --seg-on-fg: rgb(29 78 216); --seg-on-shadow: var(--shadow-glass);
 }
 
-html { -webkit-text-size-adjust: 100%; --ease-out: cubic-bezier(0.23, 1, 0.32, 1); }
+html { color-scheme: light; -webkit-text-size-adjust: 100%; --ease-out: cubic-bezier(0.23, 1, 0.32, 1); }
 body {
   margin: 0;
   color: rgb(var(--ink));
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter Variable", Inter, "Helvetica Neue", Arial, sans-serif;
+  font-family: "Inter Variable", Inter, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   font-size: 14px;
   line-height: 1.45;
@@ -66,29 +105,30 @@ body {
 h1, h2, h3 { letter-spacing: -0.01em; }
 
 :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
-.title-glow { text-shadow: 0 0 16px rgba(37,99,235,0.28), 0 0 30px rgba(79,70,229,0.16); }
-[data-theme="dark"] .title-glow { text-shadow: 0 0 16px rgba(59,130,246,0.4), 0 0 30px rgba(99,102,241,0.22); }
+.title-glow { text-shadow: var(--title-glow); }
 
 @layer components {
   /* Glass recipe: translucent pane + light top edge + directional shadow. Same for every floating surface.
      .glass has no blur (cheap, for many small cards); .glass-blur adds the blur and is used on the few large panels. */
   .glass {
-    @apply bg-white/85 dark:bg-slate-800/70 border border-slate-900/10 dark:border-white/10 shadow-glass dark:shadow-glass-dark;
+    background: var(--glass); border: 1px solid var(--glass-border); box-shadow: var(--shadow-glass);
   }
   .glass-blur {
-    @apply bg-white/80 dark:bg-slate-800/60 border border-slate-900/10 dark:border-white/10 shadow-glass dark:shadow-glass-dark backdrop-blur-xl backdrop-saturate-150;
+    background: var(--glass-blur); border: 1px solid var(--glass-border); box-shadow: var(--shadow-glass);
+    @apply backdrop-blur-xl backdrop-saturate-150;
   }
   .glass-lg {
-    @apply bg-white/85 dark:bg-slate-800/75 border border-slate-900/10 dark:border-white/10 shadow-glass-lg dark:shadow-glass-lg-dark backdrop-blur-xl backdrop-saturate-150;
+    background: var(--glass-lg); border: 1px solid var(--glass-border); box-shadow: var(--shadow-glass-lg);
+    @apply backdrop-blur-xl backdrop-saturate-150;
   }
-  .recessed { @apply bg-slate-100 dark:bg-slate-900/60 shadow-glass-inset dark:shadow-glass-inset-dark; }
+  .recessed { background: var(--seg-track); box-shadow: var(--seg-track-shadow); }
   .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; }
   .field-label { @apply block text-sm font-semibold text-ink mb-1; }
   .field-hint { @apply text-xs text-ink-mute mt-1; }
   .field-error { @apply text-xs font-medium text-danger-700 mt-1 flex items-start gap-1; }
   .input {
-    @apply w-full rounded-lg border px-3 py-1.5 text-ink placeholder:text-ink-mute/80 min-h-[38px];
-    background: var(--input-bg);
+    @apply w-full border px-3 py-1.5 text-ink placeholder:text-ink-mute/80 min-h-[38px];
+    background: var(--input-bg); border-radius: var(--r-input);
     border-color: var(--input-border);
     transition: border-color .15s, box-shadow .15s;
   }
@@ -98,19 +138,19 @@ h1, h2, h3 { letter-spacing: -0.01em; }
   .input[aria-invalid="true"] { border-color: rgb(var(--danger-600)); background: rgb(var(--danger-50)); }
   .input:disabled, .input[readonly] { background: rgb(var(--chip) / .6); color: rgb(var(--ink-soft)); }
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg px-3.5 py-1.5 font-semibold min-h-[38px] select-none;
+    @apply inline-flex items-center justify-center gap-2 px-3.5 py-1.5 font-semibold min-h-[38px] select-none; border-radius: var(--r-btn);
     transition: transform 160ms var(--ease-out), background-color 150ms ease, box-shadow 150ms ease, opacity 150ms ease;
   }
   .btn:active:not(:disabled), .btn-icon:active:not(:disabled) { transform: scale(0.97); }
   .btn:disabled { opacity: .55; cursor: not-allowed; }
-  .btn-primary { @apply btn text-white bg-blue-600 hover:enabled:bg-blue-700 dark:hover:enabled:bg-blue-500 shadow-[0_6px_14px_-8px_rgba(37,99,235,0.8)]; }
-  a.btn-primary:hover { @apply bg-blue-700 dark:bg-blue-500; }
-  .btn-soft { @apply btn text-ink bg-white/80 dark:bg-slate-700/60 border; border-color: var(--input-border); }
+  .btn-primary { @apply btn text-white bg-brand-600 hover:enabled:bg-brand-700; box-shadow: var(--shadow-btn); }
+  a.btn-primary:hover { @apply bg-brand-700; }
+  .btn-soft { @apply btn text-ink bg-white/80 border; border-color: var(--input-border); }
   .btn-soft:hover:not(:disabled) { border-color: var(--input-border-hover); background: var(--row-hover); }
   .btn-danger { @apply btn text-white bg-red-600 hover:enabled:bg-red-700; }
   .btn-ghost { @apply btn text-ink-soft; min-height: 32px; padding: 2px 8px; }
   .btn-ghost:hover:not(:disabled) { background: var(--btn-hover); color: rgb(var(--ink)); }
-  .btn-icon { @apply inline-flex items-center justify-center rounded-lg text-ink-soft transition-[background-color,color,transform] duration-150; width: 34px; height: 34px; }
+  .btn-icon { @apply inline-flex items-center justify-center text-ink-soft transition-[background-color,color,transform] duration-150; width: 34px; height: 34px; border-radius: var(--r-btn); }
   .btn-icon:hover:not(:disabled) { background: var(--btn-hover); color: rgb(var(--ink)); }
   .chip { @apply inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold; }
   .skel {
@@ -121,15 +161,15 @@ h1, h2, h3 { letter-spacing: -0.01em; }
   .th { @apply text-left text-xs font-semibold uppercase tracking-wider text-ink-mute px-2.5 lg:px-3 py-2; }
   .td { @apply px-2.5 lg:px-3 py-2 align-middle; }
   /* Segmented control: recessed track, one raised thumb (the selected button) */
-  .seg { @apply inline-flex items-center gap-0.5 rounded-xl p-0.5 recessed; }
-  .seg > button { @apply px-3.5 min-h-[34px] rounded-lg font-semibold text-ink-soft transition-colors; }
+  .seg { @apply inline-flex items-center gap-0.5 p-0.5 recessed; border-radius: var(--r-seg); }
+  .seg > button { @apply px-3.5 min-h-[34px] font-semibold text-ink-soft transition-colors; border-radius: var(--r-btn); }
   .seg > button:hover { color: rgb(var(--ink)); }
-  .seg > button[aria-checked="true"], .seg > button[aria-pressed="true"] { @apply bg-white/95 dark:bg-slate-600 shadow-glass dark:shadow-glass-dark text-brand-700; }
-  [data-theme="dark"] .seg > button[aria-checked="true"], [data-theme="dark"] .seg > button[aria-pressed="true"] { @apply text-white; }
+  .seg > button[aria-checked="true"], .seg > button[aria-pressed="true"] { background: var(--seg-on-bg); color: var(--seg-on-fg); box-shadow: var(--seg-on-shadow); }
   .seg-sm > button { @apply px-2 min-h-[30px] min-w-[32px] text-xs font-bold; }
-  /* Nav item: flat at rest, recessed when active */
-  .nav-item { @apply transition-colors duration-150 flex items-center gap-3 min-h-11 px-3 rounded-xl font-semibold text-gray-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700; }
-  .nav-item[aria-current="page"] { @apply bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 shadow-glass-inset dark:shadow-glass-inset-dark; }
+  /* Nav item: flat at rest, highlighted when active */
+  .nav-item { @apply transition-colors duration-150 flex items-center gap-3 min-h-11 px-3 font-semibold text-ink-soft; border-radius: var(--r-nav); }
+  .nav-item:hover { background: var(--btn-hover); }
+  .nav-item[aria-current="page"], .nav-on, .btn-icon.nav-on:hover:not(:disabled) { background: var(--nav-on-bg); color: var(--nav-on-fg); box-shadow: var(--nav-on-shadow); }
 }
 
 @keyframes shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
@@ -144,13 +184,11 @@ h1, h2, h3 { letter-spacing: -0.01em; }
 
 /* Fallbacks: no blur when unsupported or when the user asks for less transparency (panels get a more opaque fill) */
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .glass-blur, .glass-lg { background-color: rgba(255, 255, 255, 0.94); }
-  [data-theme="dark"] .glass-blur, [data-theme="dark"] .glass-lg { background-color: rgba(30, 41, 59, 0.94); }
+  .glass-blur, .glass-lg { background: rgba(255, 255, 255, 0.94); }
 }
 @media (prefers-reduced-transparency: reduce) {
-  .glass-blur, .glass-lg { -webkit-backdrop-filter: none; backdrop-filter: none; background-color: rgba(255, 255, 255, 0.97); }
-  .glass { background-color: rgba(255, 255, 255, 0.97); }
-  [data-theme="dark"] .glass-blur, [data-theme="dark"] .glass-lg, [data-theme="dark"] .glass { background-color: rgba(30, 41, 59, 0.97); }
+  .glass-blur, .glass-lg { -webkit-backdrop-filter: none; backdrop-filter: none; background: rgba(255, 255, 255, 0.97); }
+  .glass { background: rgba(255, 255, 255, 0.97); }
 }
 
 .tabnum { font-variant-numeric: tabular-nums; }

@@ -80,7 +80,7 @@ export const en = {
 
   'audit.title': 'Change history', 'audit.more': 'Load more', 'audit.back': 'Back to product', 'audit.empty': 'No history yet', 'audit.emptyText': 'Every change to this product is recorded here.',
   'nav.group.catalog': 'Catalog', 'nav.group.system': 'Settings', 'nav.menu': 'Menu', 'nav.closeMenu': 'Close menu',
-  'nav.settings': 'Settings', 'nav.theme': 'Theme', 'nav.themeDark': 'Switch to dark mode', 'nav.themeLight': 'Switch to light mode', 'nav.user': 'User', 'nav.openSettings': 'Open settings',
+  'nav.settings': 'Settings', 'nav.user': 'User', 'nav.openSettings': 'Open settings',
   'list.subtitle': 'Manage your product catalog and stock', 'list.duplicate': 'Duplicate', 'list.duplicated': 'Product duplicated. Review the copy before using it.', 'list.low': 'Low',
   'list.imageCol': 'Image', 'list.lowOnly': 'Low stock only', 'list.lowFilter': 'Low stock (min. {n})',
   'stat.total': 'Total products', 'stat.low': 'Low stock', 'stat.active': 'Active products',
@@ -88,6 +88,6 @@ export const en = {
   'set.name': 'Shop name', 'set.tagline': 'Tagline', 'set.logo': 'Logo', 'set.logoHint': 'PNG, JPG or WebP. Square works best.', 'set.logoUpload': 'Upload logo', 'set.logoChange': 'Change logo', 'set.logoRemove': 'Remove logo',
   'set.logoSaved': 'Logo updated.', 'set.logoRemoved': 'Logo removed, back to the leaf icon.', 'set.logoDefault': 'Default leaf icon',
   'set.prefs': 'Preferences', 'set.prefsHint': 'Applies across the whole app.', 'set.threshold': 'Low-stock threshold', 'set.thresholdHint': 'Products with stock up to this number count as low.',
-  'set.lang': 'Default language', 'set.langHint': 'Used when this device has not picked a language yet.', 'set.theme': 'Appearance', 'set.themeHint': 'Follow the system or choose. Saved on this device.',
-  'set.themeSystem': 'System', 'set.themeLight': 'Light', 'set.themeDark': 'Dark', 'set.saved': 'Settings saved.', 'set.errNum': 'Enter 0 or more.',
+  'set.lang': 'Default language', 'set.langHint': 'Used when this device has not picked a language yet.', 'set.theme': 'Color theme', 'set.themeHint': 'Green or Blue. Saved on this device.',
+  'set.paletteGreen': 'Green', 'set.paletteBlue': 'Blue', 'set.saved': 'Settings saved.', 'set.errNum': 'Enter 0 or more.',
 };

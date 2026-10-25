@@ -128,7 +128,7 @@ export function Toggle({ checked, onChange, label, id }) {
   return (
     <label className="inline-flex items-center gap-3 cursor-pointer select-none">
       <input id={id} type="checkbox" role="switch" className="sr-only peer" checked={!!checked} onChange={(e) => onChange(e.target.checked)} />
-      <span className="relative w-11 h-6 rounded-full bg-ink-mute/40 peer-checked:bg-blue-600 transition-colors peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-[var(--focus)] peer-focus-visible:outline-offset-2 after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:w-5 after:h-5 after:rounded-full after:bg-white after:transition-transform after:shadow peer-checked:after:translate-x-5" />
+      <span className="relative w-11 h-6 rounded-full bg-ink-mute/40 peer-checked:bg-brand-600 transition-colors peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-[var(--focus)] peer-focus-visible:outline-offset-2 after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:w-5 after:h-5 after:rounded-full after:bg-white after:transition-transform after:shadow peer-checked:after:translate-x-5" />
       {label && <span className="font-medium">{label}</span>}
     </label>
   );
